@@ -47,6 +47,27 @@ public:
     void topUpCreditPoints();      // Handle credit point top-up operations
     void viewBookingHistory();     // Display user booking history
     
+    // Electric motorbike listing functions
+    void showMotorbikeListingMenu(); // Display motorbike listing menu
+    void listMyMotorbike();        // Handle motorbike listing process
+    void unlistMyMotorbike();      // Handle motorbike unlisting process
+    void viewMyMotorbikeListing(); // Display current motorbike listing
+    
+    // Motorbike search and filtering functions
+    void showMotorbikeSearchMenu(); // Display motorbike search menu
+    void searchMotorbikes();       // Handle motorbike search process
+    void displayMotorbikeDetails(const struct Motorbike& motorbike); // Display motorbike details
+    void displayMotorbikeReviews(const std::string& motorbikeId); // Display motorbike reviews
+    
+    // Guest functions
+    void viewGuestMotorbikeListings(); // Display limited motorbike listings for guests
+    void searchGuestMotorbikes(); // Search motorbikes with limited information for guests
+    
+    // Admin functions
+    void viewAllMemberProfiles(); // Display all member profiles
+    void viewAllMotorbikeListings(); // Display all motorbike listings
+    void showSystemStatistics(); // Display system statistics
+    
     // Component reference setters
     void setAuth(Auth* auth) { this->auth = auth; }
     void setBookingManager(BookingManager* bookingManager) { this->bookingManager = bookingManager; }

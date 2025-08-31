@@ -76,7 +76,11 @@ void Auth::loadUsers() {
             // This is old format, so we need to read the remaining fields
             string temp;
             getline(ss, temp, '|');
-            user.rating = stod(temp);
+            try {
+                user.rating = stod(temp);
+            } catch (const std::invalid_argument& e) {
+                user.rating = 3.0; // Default rating
+            }
             getline(ss, user.license, '|');
             
             // Set default values for new fields
@@ -101,10 +105,18 @@ void Auth::loadUsers() {
             
             string temp;
             getline(ss, temp, '|');
-            user.creditPoints = stod(temp);
+            try {
+                user.creditPoints = stod(temp);
+            } catch (const std::invalid_argument& e) {
+                user.creditPoints = 0.0; // Default value
+            }
             
             getline(ss, temp, '|');
-            user.rating = stod(temp);
+            try {
+                user.rating = stod(temp);
+            } catch (const std::invalid_argument& e) {
+                user.rating = 3.0; // Default rating
+            }
             
             getline(ss, user.license, '|');
         }
@@ -530,4 +542,39 @@ void Auth::displayProfile(const string& username, BookingManager* bookingManager
             cout << "\n";
         }
     }
+}
+
+// User data access methods for search functionality
+
+double Auth::getUserRenterRating(const string& username) {
+    for (const User& user : users) {
+        if (user.username == username) {
+            return user.rating;
+        }
+    }
+    return 0.0; // Default rating if user not found
+}
+
+double Auth::getUserCreditPoints(const string& username) {
+    for (const User& user : users) {
+        if (user.username == username) {
+            return user.creditPoints;
+        }
+    }
+    return 0.0; // Default credit points if user not found
+}
+
+string Auth::getUserLicenseExpiry(const string& username) {
+    for (const User& user : users) {
+        if (user.username == username) {
+            return user.licenseExpiry;
+        }
+    }
+    return ""; // Empty string if user not found
+}
+
+// Admin methods
+
+vector<User> Auth::getAllUsers() {
+    return users; // Return all users for admin view
 }

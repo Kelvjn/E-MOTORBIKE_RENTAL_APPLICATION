@@ -56,6 +56,14 @@ public:
     
     // Utility functions
     std::string hidePassword();
+    
+    // User data access methods for search functionality
+    double getUserRenterRating(const std::string& username);
+    double getUserCreditPoints(const std::string& username);
+    std::string getUserLicenseExpiry(const std::string& username);
+    
+    // Admin methods
+    std::vector<User> getAllUsers(); // Get all users for admin view
 };
 
 #endif
