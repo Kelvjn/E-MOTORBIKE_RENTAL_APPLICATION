@@ -1,6 +1,6 @@
 CXX = g++
 CXXFLAGS = -std=c++11 -Wall -Wextra
-TARGET = motorbike_rental_v6
+TARGET = motorbike_rental_final
 SOURCES = main.cpp ui.cpp auth.cpp booking.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 

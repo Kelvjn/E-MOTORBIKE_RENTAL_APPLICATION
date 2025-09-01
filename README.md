@@ -65,7 +65,7 @@ make run
 
 **Option B: Direct Execution**
 ```bash
-./motorbike_rental_v5
+./motorbike_rental_final
 ```
 
 ### Application Startup
@@ -119,13 +119,13 @@ The system includes sample member accounts for testing:
 
 #### **Manual Compilation (if make fails)**
 ```bash
-g++ -std=c++11 -Wall -Wextra main.cpp ui.cpp auth.cpp booking.cpp -o motorbike_rental_v5
+g++ -std=c++11 -Wall -Wextra main.cpp ui.cpp auth.cpp booking.cpp -o motorbike_rental_final
 ```
 
 ### File Structure After Compilation
 ```
 E-MOTORBIKE_RENTAL_APPLICATION/
-├── motorbike_rental_v5.exe    # Executable file
+├── motorbike_rental_final.exe # Executable file
 ├── main.o                     # Compiled main.cpp
 ├── ui.o                       # Compiled ui.cpp
 ├── auth.o                     # Compiled auth.cpp
