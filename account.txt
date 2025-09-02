@@ -1,3 +1,2 @@
-username|password|role|fullName|email|phoneNumber|idType|idNumber|licenseNumber|licenseExpiry|creditPoints|rating|license
+# Account Data Format: username|password|role|fullName|email|phone|idType|idNumber|licenseNumber|licenseExpiry|creditPoints|rating|license
 admin|admin123|admin|System Administrator|admin@system.com|0000000000|Citizen ID|ADMIN_ID|ADMIN_LICENSE|2099-12-31|1000|5|ADMIN_LICENSE
-Thinh|Thinh123|member|Duc Thinh|luducthinh2004@gmail.com|0379159553|Citizen ID|078554484|55566421|2030-12-31|22|3|55566421

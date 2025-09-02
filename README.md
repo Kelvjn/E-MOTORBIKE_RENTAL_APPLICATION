@@ -68,12 +68,27 @@ make clean
 - Cannot be common weak passwords
 - Examples of weak passwords: "12345678", "password", "admin123"
 
+### Electric Motorbike Listing Requirements
+- **One Motorbike per Member**: Each member can only register one electric motorbike
+- **Required Information**:
+  - Available rental period (start and end date in DD/MM/YYYY format)
+  - City (HCMC or Hanoi only)
+  - Daily rental rate (in Credit Points - CP)
+  - Minimum required renter-rating (0.0-5.0)
+  - Motorbike details (brand, model, color, engine size, plate number)
+  - Optional description
+- **Unlisting**: Motorbikes can be unlisted anytime unless already booked
+- **Validation**: Comprehensive input validation for all fields
+
 ## File Structure
 
 - `main.cpp` - Main application entry point
 - `ui.h/ui.cpp` - User interface and menu system
 - `auth.h/auth.cpp` - Authentication and user management
+- `booking.h/booking.cpp` - Booking and motorbike management system
 - `account.txt` - User data storage (created automatically)
+- `motorbikes.txt` - Motorbike listings data storage (created automatically)
+- `bookings.txt` - Booking data storage (created automatically)
 - `Makefile` - Build configuration
 
 ## Profile Management Features
@@ -116,11 +131,55 @@ Members can access comprehensive profile management through the member menu:
 - Input validation for all profile fields
 - Strong password policy enforcement
 
+## Electric Motorbike Management Features
+
+### Member Motorbike Management
+Members can access comprehensive motorbike management through the member menu:
+
+1. **List Motorbike for Rent**
+   - Register one electric motorbike per account
+   - Specify available rental period with start and end dates
+   - Choose city (HCMC or Hanoi only)
+   - Set daily rental rate in Credit Points (CP)
+   - Set minimum required renter rating (0.0-5.0)
+   - Add motorbike details: brand, model, color, engine size, plate number
+   - Optional description field
+
+2. **View My Motorbike**
+   - Display complete motorbike information
+   - Show current listing status (Listed/Unlisted)
+   - Display motorbike rating and rental details
+   - View available rental period and city
+
+3. **Unlist My Motorbike**
+   - Remove motorbike from available listings
+   - Confirmation required before unlisting
+   - Cannot unlist if there are pending or approved bookings
+   - Re-listing requires going through the listing process again
+
+### Validation Features
+- Date format validation (DD/MM/YYYY)
+- City validation (HCMC or Hanoi only)
+- Rating range validation (0.0-5.0)
+- Positive price validation
+- One motorbike per member enforcement
+- Booking status check before unlisting
+
 ## Data Format
 
 User data is stored in `account.txt` with the following format:
 ```
 username|password|role|fullName|email|phoneNumber|idType|idNumber|licenseNumber|licenseExpiry|creditPoints|rating|license
+```
+
+Motorbike data is stored in `motorbikes.txt` with the following format:
+```
+motorbikeId|ownerUsername|brand|model|color|size|plateNo|pricePerDay|city|startDate|endDate|minRenterRating|isAvailable|isListed|rating|description
+```
+
+Booking data is stored in `bookings.txt` with the following format:
+```
+bookingId|renterUsername|ownerUsername|motorbikeId|startDate|endDate|status|totalCost|brand|model|color|size|plateNo
 ```
 
 ## Development Status
@@ -136,7 +195,15 @@ username|password|role|fullName|email|phoneNumber|idType|idNumber|licenseNumber|
   - ✅ Change password with validation
   - ✅ Top up credit points ($1 = 1 CP)
   - ✅ View booking history and rating statistics
-- ⏳ Motorbike listing system
+- ✅ Electric Motorbike Listing System
+  - ✅ List electric motorbike for rent (one per member)
+  - ✅ Specify available rental period (start and end date)
+  - ✅ City selection (HCMC or Hanoi only)
+  - ✅ Daily rental rate in Credit Points (CP)
+  - ✅ Minimum required renter-rating
+  - ✅ View listed motorbike details
+  - ✅ Unlist motorbike (unless already booked)
+  - ✅ Input validation and error handling
 - ⏳ Booking system
 - ⏳ Credit points management
 - ⏳ Rating system

@@ -1,0 +1,6 @@
+# Review Data Format: reviewId|motorbikeId|reviewerUsername|rating|comment|reviewDate
+RV1|MB1|admin|4.5|Great electric scooter! Very quiet and eco-friendly. Perfect for city commuting.|10/11/2025
+RV2|MB1|Thinh|4.5|Smooth ride, good battery life. Highly recommended!|15/11/2025
+RV3|MB2|Thinh|4|Reliable Honda as always. Good fuel economy and comfortable seat.|20/11/2025
+RV4|MB3|admin|5|Amazing performance! Fast and responsive. Love this bike!|25/11/2025
+RV5|MB4|admin|3.8|Perfect for beginners. Easy to handle and park.|01/12/2025

@@ -1,0 +1,31 @@
+# Motorbike Data Format: motorbikeId|ownerUsername|brand|model|color|size|plateNo|pricePerDay|city|startDate|endDate|minRenterRating|isAvailable|isListed|rating|description
+MB1|Thinh|VinFast|Klara S|Red|50cc|59X3-216.86|25|HCMC|01/08/2025|31/12/2025|2.5|1|1|4.5|Eco-friendly electric scooter, perfect for city rides
+MB2|admin|Honda|Vision|Blue|110cc|51A-12345|35|HCMC|01/08/2025|30/11/2025|3|1|1|4|Reliable Honda scooter with good fuel efficiency
+MB3|admin|Yamaha|Exciter|Black|150cc|51B-67890|45|Hanoi|01/08/2025|31/12/2025|4|1|1|5|Powerful sport bike for experienced riders
+MB4|Thinh|Piaggio|Zip|White|50cc|51C-11111|20|HCMC|15/08/2025|31/03/2026|2|1|1|3.8|Small and easy to handle, great for beginners
+MB5|user1|Honda|Lead|Silver|125cc|51D-22222|40|HCMC|01/09/2025|31/01/2026|3.5|1|1|0|Premium scooter with spacious storage
+MB6|user2|Yamaha|Janus|Blue|125cc|51E-33333|38|Hanoi|01/08/2025|31/12/2025|3|1|1|0|Stylish design with modern features
+MB7|user3|SYM|Attila|Black|125cc|51F-44444|42|HCMC|15/08/2025|28/02/2026|4|1|1|0|Sporty look with excellent performance
+MB8|user4|Suzuki|Raider|Red|150cc|51G-55555|48|Hanoi|01/08/2025|31/03/2026|4.2|1|1|0|High performance sport bike
+MB9|user5|Honda|Wave Alpha|White|110cc|51H-66666|32|HCMC|01/09/2025|30/11/2025|2.8|1|1|0|Classic and reliable commuter bike
+MB10|user6|Yamaha|Sirius|Blue|110cc|51I-77777|33|Hanoi|01/08/2025|31/01/2026|3.2|1|1|0|Fuel-efficient with comfortable ride
+MB11|user7|Honda|Air Blade|Gray|150cc|51J-88888|50|HCMC|15/08/2025|31/12/2025|4.5|1|1|0|Premium automatic scooter
+MB12|user8|Piaggio|Liberty|Green|125cc|51K-99999|45|Hanoi|01/09/2025|28/02/2026|3.8|1|1|0|Italian design with smooth operation
+MB13|user9|VinFast|Theon|Blue|50cc|52A-11111|28|HCMC|01/08/2025|31/03/2026|2.5|1|1|0|Electric scooter with modern technology
+MB14|user10|Honda|SH Mode|Black|125cc|52B-22222|55|Hanoi|01/08/2025|31/12/2025|4|1|1|0|Premium scooter with advanced features
+MB15|user11|Yamaha|Grande|White|125cc|52C-33333|47|HCMC|15/08/2025|31/01/2026|3.7|1|1|0|Elegant design with comfortable seating
+MB16|user12|SYM|Galaxy|Silver|50cc|52D-44444|25|Hanoi|01/09/2025|28/02/2026|2|1|1|0|Compact and easy to maneuver
+MB17|user13|Honda|PCX|Gray|150cc|52E-55555|60|HCMC|01/08/2025|31/12/2025|4.8|1|1|0|High-end automatic scooter
+MB18|user14|Yamaha|NVX|Orange|155cc|52F-66666|65|Hanoi|01/08/2025|31/03/2026|4.5|1|1|0|Sport scooter with aggressive styling
+MB19|user15|Suzuki|Address|Pink|110cc|52G-77777|35|HCMC|15/08/2025|30/11/2025|3.3|1|1|0|Lightweight and fuel efficient
+MB20|user16|Piaggio|Vespa|Cream|150cc|52H-88888|70|Hanoi|01/09/2025|31/01/2026|4.7|1|1|0|Classic Italian style icon
+MB21|user17|Honda|Future|Blue|125cc|52I-99999|36|HCMC|01/08/2025|28/02/2026|3.4|1|1|0|Reliable and economical choice
+MB22|user18|Yamaha|Jupiter|Red|110cc|52J-11111|34|Hanoi|01/08/2025|31/12/2025|3.1|1|1|0|Traditional underbone motorcycle
+MB23|user19|SYM|Shark|Black|125cc|52K-22222|41|HCMC|15/08/2025|31/03/2026|3.9|1|1|0|Sporty scooter with sharp design
+MB24|user20|Honda|SH 350i|White|350cc|52L-33333|85|Hanoi|01/09/2025|31/01/2026|4.9|1|1|0|Premium maxi-scooter
+MB25|user21|Yamaha|XMAX|Gray|300cc|52M-44444|80|HCMC|01/08/2025|28/02/2026|4.6|1|1|0|Adventure-ready maxi-scooter
+MB26|user22|Suzuki|Burgman|Silver|200cc|52N-55555|75|Hanoi|01/08/2025|31/12/2025|4.4|1|1|0|Comfortable touring scooter
+MB27|user23|Piaggio|MP3|Blue|300cc|52O-66666|90|HCMC|15/08/2025|31/03/2026|4.3|1|1|0|Three-wheel stability and performance
+MB28|user24|VinFast|Klara A2|Green|50cc|52P-77777|30|Hanoi|01/09/2025|31/01/2026|2.7|1|1|0|Affordable electric mobility
+MB29|user25|Honda|Winner X|Black|150cc|52Q-88888|52|HCMC|01/08/2025|28/02/2026|4.1|1|1|0|Sport bike with racing heritage
+MB30|user26|Yamaha|R15|Blue|155cc|52R-99999|68|Hanoi|01/08/2025|31/12/2025|4.8|1|1|0|Full-faired sport motorcycle
