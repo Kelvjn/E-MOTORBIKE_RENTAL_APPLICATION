@@ -85,3 +85,4 @@ void Persistence::loadMotorbikes(vector<Motorbike*>& bikes) {
     }
     fin.close();
 }
+
