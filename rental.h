@@ -22,7 +22,18 @@ public:
     void rateBoth(int renterStars, string renterComment, int motorbikeStars, string motorbikeComment);
 
     bool isCompleted() const;
+};
 
+
+class Member
+{
+private:
+    double renterRating;
+    vector<int> renterReviews;
+
+public:
+    void addRenterReview(int stars, const string& comment);
+    double getRenterRating() const;
 };
 
 #endif
