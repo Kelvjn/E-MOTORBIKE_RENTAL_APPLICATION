@@ -42,6 +42,17 @@ void Rental::rateBoth(int renterStars, string renterComment, int motorbikeStars,
 
 bool Rental::isCompleted() const {
     return completed;
+}
 
 
+void Member::addRenterReview(int stars, const string& comment) {
+    renterReviews.push_back(stars);
+    int sum = 0;
+    for (int r : renterReviews) sum += r;
+    renterRating = (double)sum / renterReviews.size();
+    cout << "Renter " << username << " new rating: " << renterRating << "\n";
+}
+
+double Member::getRenterRating() const {
+    return renterRating;
 }
