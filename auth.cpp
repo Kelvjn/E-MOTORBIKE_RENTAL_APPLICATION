@@ -47,8 +47,16 @@ void Auth::loadUsers() {
     }
     
     string line;
+    bool isFirstLine = true;
     while (getline(file, line)) {
         if (line.empty()) continue;
+        
+        // Skip header line (starts with #)
+        if (isFirstLine && line[0] == '#') {
+            isFirstLine = false;
+            continue;
+        }
+        isFirstLine = false;
         
         stringstream ss(line);
         User user;
@@ -122,6 +130,9 @@ void Auth::saveUsers() {
         return;
     }
     
+    // Write header for admin readability
+    file << "# Account Data Format: username|password|role|fullName|email|phone|idType|idNumber|licenseNumber|licenseExpiry|creditPoints|rating|license\n";
+    
     for (const User& user : users) {
         file << user.username << "|"
              << user.password << "|"
@@ -179,6 +190,8 @@ bool Auth::login() {
     cin >> username;
     
     cout << "Enter password: ";
+    // Clear input buffer more safely
+    cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     password = hidePassword();
     cout << endl;
@@ -238,86 +251,128 @@ bool Auth::registerUser() {
     cout << "\n=== MEMBER REGISTRATION ===\n";
     cout << "Registration fee: $20\n";
     cout << "You will receive: 20 CPs and default rating of 3.0\n\n";
+    cout << "REGISTRATION REQUIREMENTS:\n";
+    cout << "PASSWORD:\n";
+    cout << "- At least 8 characters long\n";
+    cout << "- Must contain uppercase letter (A-Z)\n";
+    cout << "- Must contain lowercase letter (a-z)\n";
+    cout << "- Must contain at least one digit (0-9)\n";
+    cout << "- Avoid common weak passwords\n\n";
+    cout << "EMAIL: Valid email format (example@domain.com)\n";
+    cout << "PHONE: 10-11 digits only\n\n";
     
-    // Username
-    cout << "Enter username: ";
-    cin >> username;
-    
-    // Check if username already exists
-    for (const User& user : users) {
-        if (user.username == username) {
-            cout << "Username already exists. Please choose another.\n";
-            return false;
+    // Username input with retry loop
+    while (true) {
+        cout << "Enter username: ";
+        cin >> username;
+        
+        // Check if username already exists
+        bool usernameExists = false;
+        for (const User& user : users) {
+            if (user.username == username) {
+                usernameExists = true;
+                break;
+            }
         }
+        
+        if (usernameExists) {
+            cout << "Username already exists. Please choose another.\n";
+            continue; // Retry username input
+        }
+        break; // Username is valid, continue to next step
     }
     
-    // Password
-    cout << "Enter password: ";
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    password = hidePassword();
-    cout << endl;
-    
-    if (!validatePassword(password)) {
-        return false;
+    // Password input with retry loop
+    while (true) {
+        cout << "Enter password: ";
+        // Clear input buffer before password input
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        password = hidePassword();
+        cout << endl;
+        
+        if (!validatePassword(password)) {
+            continue; // Retry password input
+        }
+        
+        cout << "Confirm password: ";
+        confirmPassword = hidePassword();
+        cout << endl;
+        
+        if (password != confirmPassword) {
+            cout << "Passwords do not match. Please try again.\n";
+            continue; // Retry password input
+        }
+        break; // Password is valid, continue to next step
     }
     
-    cout << "Confirm password: ";
-    confirmPassword = hidePassword();
-    cout << endl;
-    
-    if (password != confirmPassword) {
-        cout << "Passwords do not match.\n";
-        return false;
-    }
-    
-    // Full name
+    // Full name input
     cout << "Enter full name: ";
+    // Clear input buffer to handle any remaining characters
+    cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     getline(cin, fullName);
     
-    // Email
-    cout << "Enter email: ";
-    cin >> email;
-    if (!validateEmail(email)) {
-        return false;
+    // Email input with retry loop
+    while (true) {
+        cout << "Enter email: ";
+        cin >> email;
+        if (validateEmail(email)) {
+            break; // Email is valid, continue to next step
+        }
+        // Retry email input if validation failed
     }
     
-    // Phone number
-    cout << "Enter phone number: ";
-    cin >> phoneNumber;
-    if (!validatePhoneNumber(phoneNumber)) {
-        return false;
+    // Phone number input with retry loop
+    while (true) {
+        cout << "Enter phone number: ";
+        cin >> phoneNumber;
+        if (validatePhoneNumber(phoneNumber)) {
+            break; // Phone number is valid, continue to next step
+        }
+        // Retry phone number input if validation failed
     }
     
-    // ID type and number
-    cout << "Enter ID type (1 for Citizen ID, 2 for Passport): ";
-    int idChoice;
-    cin >> idChoice;
-    if (idChoice == 1) {
-        idType = "Citizen ID";
-    } else if (idChoice == 2) {
-        idType = "Passport";
-    } else {
-        cout << "Invalid choice. Please select 1 or 2.\n";
-        return false;
+    // ID type selection with retry loop
+    while (true) {
+        cout << "Enter ID type (1 for Citizen ID, 2 for Passport): ";
+        int idChoice;
+        cin >> idChoice;
+        if (idChoice == 1) {
+            idType = "Citizen ID";
+            break;
+        } else if (idChoice == 2) {
+            idType = "Passport";
+            break;
+        } else {
+            cout << "Invalid choice. Please select 1 or 2.\n";
+            continue; // Retry ID type selection
+        }
     }
     
     cout << "Enter " << idType << " number: ";
     cin >> idNumber;
     
-    // Driver's license (optional)
-    cout << "Do you have a driver's license? (y/n): ";
-    char hasLicense;
-    cin >> hasLicense;
-    
-    if (tolower(hasLicense) == 'y') {
-        cout << "Enter driver's license number: ";
-        cin >> licenseNumber;
-        cout << "Enter license expiry date (YYYY-MM-DD): ";
-        cin >> licenseExpiry;
-    } else {
-        licenseNumber = "N/A";
-        licenseExpiry = "N/A";
+    // Driver's license input with retry loop
+    while (true) {
+        cout << "Do you have a driver's license? (y/n): ";
+        char hasLicense;
+        cin >> hasLicense;
+        
+        if (tolower(hasLicense) == 'y') {
+            cout << "Enter driver's license number: ";
+            cin >> licenseNumber;
+            cout << "Enter license expiry date (YYYY-MM-DD): ";
+            cin >> licenseExpiry;
+            break;
+        } else if (tolower(hasLicense) == 'n') {
+            licenseNumber = "N/A";
+            licenseExpiry = "N/A";
+            break;
+        } else {
+            cout << "Invalid input. Please enter 'y' for yes or 'n' for no.\n";
+            continue; // Retry license question
+        }
     }
     
     // Create new user
@@ -530,4 +585,8 @@ void Auth::displayProfile(const string& username, BookingManager* bookingManager
             cout << "\n";
         }
     }
+}
+
+vector<User> Auth::getAllUsers() {
+    return users;
 }

@@ -60,7 +60,12 @@ int main() {
                 }
                 break;
             case 4: // New member registration
-                auth.registerUser();
+                if (auth.registerUser()) {
+                    cout << "Registration successful! Please login with your new account.\n";
+                    cout << "\nPress Enter to continue...";
+                    cin.ignore();
+                    cin.get();
+                }
                 break;
             case 5: // Exit application
                 cout << "\nThank you for using E-MOTORBIKE RENTAL APPLICATION!\n";

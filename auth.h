@@ -45,6 +45,7 @@ public:
     bool validatePassword(const std::string& password);
     bool validateEmail(const std::string& email);
     bool validatePhoneNumber(const std::string& phone);
+    std::vector<User> getAllUsers(); // Admin function to get all users
     
     // Profile management
     bool updateProfile(const std::string& username, const std::string& fullName, 
