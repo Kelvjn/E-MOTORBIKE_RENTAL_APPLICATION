@@ -248,16 +248,22 @@ bool Auth::registerUser() {
     string username, password, confirmPassword, fullName, email, phoneNumber;
     string idType, idNumber, licenseNumber, licenseExpiry;
     
-    cout << "\n=== MEMBER REGISTRATION ===\n";
+    cout << "\n";
+    cout << "========================================\n";
+    cout << "        MEMBER REGISTRATION\n";
+    cout << "========================================\n";
     cout << "Registration fee: $20\n";
     cout << "You will receive: 20 CPs and default rating of 3.0\n\n";
+    
     cout << "REGISTRATION REQUIREMENTS:\n";
+    cout << "--------------------------\n";
     cout << "PASSWORD:\n";
-    cout << "- At least 8 characters long\n";
-    cout << "- Must contain uppercase letter (A-Z)\n";
-    cout << "- Must contain lowercase letter (a-z)\n";
-    cout << "- Must contain at least one digit (0-9)\n";
-    cout << "- Avoid common weak passwords\n\n";
+    cout << "  - At least 8 characters long\n";
+    cout << "  - Must contain uppercase letter (A-Z)\n";
+    cout << "  - Must contain lowercase letter (a-z)\n";
+    cout << "  - Must contain at least one digit (0-9)\n";
+    cout << "  - Avoid common weak passwords\n\n";
+    
     cout << "EMAIL: Valid email format (example@domain.com)\n";
     cout << "PHONE: 10-11 digits only\n\n";
     
@@ -285,9 +291,6 @@ bool Auth::registerUser() {
     // Password input with retry loop
     while (true) {
         cout << "Enter password: ";
-        // Clear input buffer before password input
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         password = hidePassword();
         cout << endl;
         
@@ -308,28 +311,28 @@ bool Auth::registerUser() {
     
     // Full name input
     cout << "Enter full name: ";
-    // Clear input buffer to handle any remaining characters
-    cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     getline(cin, fullName);
     
     // Email input with retry loop
+    cout << "Enter email: ";
     while (true) {
-        cout << "Enter email: ";
         cin >> email;
         if (validateEmail(email)) {
             break; // Email is valid, continue to next step
         }
+        cout << "Enter email: ";
         // Retry email input if validation failed
     }
     
     // Phone number input with retry loop
+    cout << "Enter phone number: ";
     while (true) {
-        cout << "Enter phone number: ";
         cin >> phoneNumber;
         if (validatePhoneNumber(phoneNumber)) {
             break; // Phone number is valid, continue to next step
         }
+        cout << "Enter phone number: ";
         // Retry phone number input if validation failed
     }
     
@@ -354,8 +357,8 @@ bool Auth::registerUser() {
     cin >> idNumber;
     
     // Driver's license input with retry loop
+    cout << "Do you have a driver's license? (y/n): ";
     while (true) {
-        cout << "Do you have a driver's license? (y/n): ";
         char hasLicense;
         cin >> hasLicense;
         
@@ -371,6 +374,7 @@ bool Auth::registerUser() {
             break;
         } else {
             cout << "Invalid input. Please enter 'y' for yes or 'n' for no.\n";
+            cout << "Do you have a driver's license? (y/n): ";
             continue; // Retry license question
         }
     }
@@ -394,12 +398,17 @@ bool Auth::registerUser() {
     users.push_back(newUser);
     saveUsers();
     
-    cout << "\n=== REGISTRATION SUCCESSFUL ===\n";
-    cout << "Welcome " << fullName << "!\n";
+    cout << "\n";
+    cout << "========================================\n";
+    cout << "        REGISTRATION SUCCESSFUL!\n";
+    cout << "========================================\n";
+    cout << "Welcome " << fullName << "!\n\n";
     cout << "Your account has been created with:\n";
-    cout << "- 20 Credit Points\n";
-    cout << "- Default rating of 3.0\n";
-    cout << "- Registration fee: $20\n\n";
+    cout << "  - 20 Credit Points\n";
+    cout << "  - Default rating of 3.0\n";
+    cout << "  - Registration fee: $20\n\n";
+    cout << "You can now login and start using the system!\n";
+    cout << "========================================\n\n";
     
     return true;
 }
@@ -421,10 +430,12 @@ bool Auth::isLoggedIn() {
 }
 
 bool Auth::validatePassword(const string& password) {
+    bool isValid = true;
+    
     // Password must be at least 8 characters long
     if (password.length() < 8) {
         cout << "Password must be at least 8 characters long.\n";
-        return false;
+        isValid = false;
     }
     
     // Check for weak passwords
@@ -436,7 +447,8 @@ bool Auth::validatePassword(const string& password) {
     for (const string& weak : weakPasswords) {
         if (password == weak) {
             cout << "Password is too weak. Please choose a stronger password.\n";
-            return false;
+            isValid = false;
+            break;
         }
     }
     
@@ -451,10 +463,10 @@ bool Auth::validatePassword(const string& password) {
     
     if (!hasUpper || !hasLower || !hasDigit) {
         cout << "Password must contain at least one uppercase letter, one lowercase letter, and one digit.\n";
-        return false;
+        isValid = false;
     }
     
-    return true;
+    return isValid;
 }
 
 bool Auth::validateEmail(const string& email) {

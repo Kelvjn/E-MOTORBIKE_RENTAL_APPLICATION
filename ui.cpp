@@ -546,39 +546,103 @@ void UI::listMotorbikeForRent() {
     
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     
-    // Collect motorbike information
-    cout << "Enter motorbike brand: ";
-    getline(cin, brand);
+    // Collect motorbike information with immediate validation
+    while (true) {
+        cout << "Enter motorbike brand: ";
+        getline(cin, brand);
+        if (!brand.empty()) {
+            break;
+        }
+        cout << "Error: Brand cannot be empty.\n";
+    }
     
-    cout << "Enter motorbike model: ";
-    getline(cin, model);
+    while (true) {
+        cout << "Enter motorbike model: ";
+        getline(cin, model);
+        if (!model.empty()) {
+            break;
+        }
+        cout << "Error: Model cannot be empty.\n";
+    }
     
-    cout << "Enter motorbike color: ";
-    getline(cin, color);
+    while (true) {
+        cout << "Enter motorbike color: ";
+        getline(cin, color);
+        if (!color.empty()) {
+            break;
+        }
+        cout << "Error: Color cannot be empty.\n";
+    }
     
-    cout << "Enter engine size (e.g., 50cc, 125cc): ";
-    getline(cin, size);
+    while (true) {
+        cout << "Enter engine size (e.g., 50cc, 125cc): ";
+        getline(cin, size);
+        if (!size.empty()) {
+            break;
+        }
+        cout << "Error: Engine size cannot be empty.\n";
+    }
     
-    cout << "Enter plate number: ";
-    getline(cin, plateNo);
+    while (true) {
+        cout << "Enter plate number: ";
+        getline(cin, plateNo);
+        if (!plateNo.empty()) {
+            break;
+        }
+        cout << "Error: Plate number cannot be empty.\n";
+    }
     
-    // Collect rental information
-    cout << "Enter daily rental rate (in CP): ";
-    cin >> pricePerDay;
+    // Collect rental information with immediate validation
+    while (true) {
+        cout << "Enter daily rental rate (in CP): ";
+        cin >> pricePerDay;
+        if (pricePerDay > 0) {
+            break;
+        }
+        cout << "Error: Daily rental rate must be greater than 0. You entered: " << pricePerDay << "\n";
+    }
     
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     
-    cout << "Enter city (HCMC or Hanoi only): ";
-    getline(cin, city);
+    // City input with immediate validation
+    while (true) {
+        cout << "Enter city (HCMC or Hanoi only): ";
+        getline(cin, city);
+        if (city == "HCMC" || city == "Hanoi") {
+            break;
+        }
+        cout << "Error: City must be either 'HCMC' or 'Hanoi'. You entered: '" << city << "'\n";
+    }
     
-    cout << "Enter available start date (DD/MM/YYYY): ";
-    getline(cin, startDate);
+    // Start date input with immediate validation
+    while (true) {
+        cout << "Enter available start date (DD/MM/YYYY): ";
+        getline(cin, startDate);
+        if (bookingManager->validateDateFormat(startDate)) {
+            break;
+        }
+        cout << "Error: Invalid date format. Please use DD/MM/YYYY format. You entered: '" << startDate << "'\n";
+    }
     
-    cout << "Enter available end date (DD/MM/YYYY): ";
-    getline(cin, endDate);
+    // End date input with immediate validation
+    while (true) {
+        cout << "Enter available end date (DD/MM/YYYY): ";
+        getline(cin, endDate);
+        if (bookingManager->validateDateFormat(endDate)) {
+            break;
+        }
+        cout << "Error: Invalid date format. Please use DD/MM/YYYY format. You entered: '" << endDate << "'\n";
+    }
     
-    cout << "Enter minimum required renter rating (0.0-5.0): ";
-    cin >> minRenterRating;
+    // Minimum renter rating input with immediate validation
+    while (true) {
+        cout << "Enter minimum required renter rating (0.0-5.0): ";
+        cin >> minRenterRating;
+        if (minRenterRating >= 0.0 && minRenterRating <= 5.0) {
+            break;
+        }
+        cout << "Error: Rating must be between 0.0 and 5.0. You entered: " << minRenterRating << "\n";
+    }
     
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     
