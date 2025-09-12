@@ -482,8 +482,12 @@ void UI::clearScreen() {
  */
 void UI::pauseScreen() {
     cout << "\nPress Enter to continue...";
+    // If there's an immediate leftover newline from previous formatted input (>>) consume it
+    if (cin.peek() == '\n') {
+        cin.ignore(1, '\n');
+    }
+    // Now wait for exactly one Enter from the user
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    cin.get();
 }
 
 // Electric motorbike listing management functions
@@ -812,9 +816,12 @@ void UI::searchMotorbikes() {
         
         if (choice > 0 && choice <= static_cast<int>(results.size())) {
             displayMotorbikeDetails(results[choice - 1]);
+            // Details view already pauses; avoid a second pause here
+            return;
         }
     }
     
+    // Pause only when not returning from details view
     pauseScreen();
 }
 
@@ -840,9 +847,7 @@ void UI::displayMotorbikeDetails(const Motorbike& motorbike) {
     // Display reviews
     displayMotorbikeReviews(motorbike.motorbikeId);
     
-    cout << "\nPress Enter to continue...";
-    cin.ignore();
-    cin.get();
+    pauseScreen();
 }
 
 /**
