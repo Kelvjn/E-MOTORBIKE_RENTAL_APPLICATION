@@ -3,10 +3,161 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <random>
+#include <algorithm>
 #include <iomanip>
 
 using namespace std;
+
+// ============================================================================
+// VEHICLE CLASS IMPLEMENTATION
+// ============================================================================
+
+Vehicle::Vehicle(const string& brand, const string& model, const string& color,
+                 const string& size, const string& plateNo, double pricePerDay,
+                 const string& location, bool isAvailable, double rating,
+                 const string& description)
+    : brand(brand), model(model), color(color), size(size), plateNo(plateNo),
+      pricePerDay(pricePerDay), location(location), isAvailable(isAvailable),
+      rating(rating), description(description) {
+}
+
+void Vehicle::setPricePerDay(double pricePerDay) {
+    if (pricePerDay >= 0) {
+        this->pricePerDay = pricePerDay;
+    }
+}
+
+void Vehicle::setRating(double rating) {
+    if (rating >= 0 && rating <= 5) {
+        this->rating = rating;
+    }
+}
+
+int Vehicle::getEngineSize() const {
+    // Extract engine size from size string (e.g., "150cc" -> 150)
+    string sizeStr = size;
+    size_t pos = sizeStr.find("cc");
+    if (pos != string::npos) {
+        sizeStr = sizeStr.substr(0, pos);
+        try {
+            return stoi(sizeStr);
+        } catch (...) {
+            return 0;
+        }
+    }
+    return 0;
+}
+
+bool Vehicle::isElectric() const {
+    // Simple check - in real app, would have more sophisticated logic
+    return brand == "VinFast" || model.find("Electric") != string::npos;
+}
+
+// ============================================================================
+// MOTORBIKE CLASS IMPLEMENTATION
+// ============================================================================
+
+Motorbike::Motorbike(const string& motorbikeId, const string& ownerUsername,
+                     const string& brand, const string& model, const string& color,
+                     const string& size, const string& plateNo, double pricePerDay,
+                     const string& location, bool isAvailable, double rating,
+                     const string& description, const string& availableStartDate,
+                     const string& availableEndDate, double minRenterRating,
+                     bool isListed)
+    : Vehicle(brand, model, color, size, plateNo, pricePerDay, location, isAvailable, rating, description),
+      motorbikeId(motorbikeId), ownerUsername(ownerUsername), availableStartDate(availableStartDate),
+      availableEndDate(availableEndDate), minRenterRating(minRenterRating), isListed(isListed) {
+}
+
+void Motorbike::displayInfo() const {
+    cout << "=== MOTORBIKE DETAILS ===" << endl;
+    cout << "ID: " << motorbikeId << endl;
+    cout << "Brand: " << brand << endl;
+    cout << "Model: " << model << endl;
+    cout << "Color: " << color << endl;
+    cout << "Size: " << size << endl;
+    cout << "Plate: " << plateNo << endl;
+    cout << "Price/Day: " << pricePerDay << " CP" << endl;
+    cout << "Location: " << location << endl;
+    cout << "Available: " << (isAvailable ? "Yes" : "No") << endl;
+    cout << "Rating: " << rating << "/5.0" << endl;
+    cout << "Description: " << description << endl;
+    cout << "Available Period: " << availableStartDate << " to " << availableEndDate << endl;
+    cout << "Min Renter Rating: " << minRenterRating << endl;
+    cout << "Listed: " << (isListed ? "Yes" : "No") << endl;
+}
+
+double Motorbike::calculateRentalCost(int days) const {
+    return pricePerDay * days;
+}
+
+void Motorbike::setMinRenterRating(double rating) {
+    if (rating >= 0 && rating <= 5) {
+        this->minRenterRating = rating;
+    }
+}
+
+bool Motorbike::isAvailableForDate(const string& date) const {
+    // Simple date comparison - in real app, would use proper date parsing
+    return date >= availableStartDate && date <= availableEndDate;
+}
+
+bool Motorbike::isAvailableForDateRange(const string& startDate, const string& endDate) const {
+    return startDate >= availableStartDate && endDate <= availableEndDate;
+}
+
+bool Motorbike::meetsRenterRequirements(double renterRating) const {
+    return renterRating >= minRenterRating;
+}
+
+// ============================================================================
+// BOOKING CLASS IMPLEMENTATION
+// ============================================================================
+
+Booking::Booking(const string& bookingId, const string& renterUsername,
+                 const string& ownerUsername, const string& motorbikeId,
+                 const string& startDate, const string& endDate, const string& status,
+                 double totalCost, const string& brand, const string& model,
+                 const string& color, const string& size, const string& plateNo)
+    : bookingId(bookingId), renterUsername(renterUsername), ownerUsername(ownerUsername),
+      motorbikeId(motorbikeId), startDate(startDate), endDate(endDate), status(status),
+      totalCost(totalCost), brand(brand), model(model), color(color), size(size), plateNo(plateNo) {
+}
+
+void Booking::setStatus(const string& status) {
+    vector<string> validStatuses = {"Pending", "Approved", "Rejected", "Completed"};
+    if (find(validStatuses.begin(), validStatuses.end(), status) != validStatuses.end()) {
+        this->status = status;
+    }
+}
+
+void Booking::setTotalCost(double totalCost) {
+    if (totalCost >= 0) {
+        this->totalCost = totalCost;
+    }
+}
+
+int Booking::getDurationInDays() const {
+    // Simple calculation - in real app, would use proper date parsing
+    // For now, return 1 day as default
+    return 1;
+}
+
+void Booking::displayInfo() const {
+    cout << "=== BOOKING DETAILS ===" << endl;
+    cout << "Booking ID: " << bookingId << endl;
+    cout << "Renter: " << renterUsername << endl;
+    cout << "Owner: " << ownerUsername << endl;
+    cout << "Motorbike: " << brand << " " << model << " (" << color << ", " << size << ")" << endl;
+    cout << "Plate: " << plateNo << endl;
+    cout << "Period: " << startDate << " to " << endDate << endl;
+    cout << "Status: " << status << endl;
+    cout << "Total Cost: " << totalCost << " CP" << endl;
+}
+
+// ============================================================================
+// BOOKING MANAGER CLASS IMPLEMENTATION
+// ============================================================================
 
 BookingManager::BookingManager() {
     bookingFilename = "bookings.txt";
@@ -14,14 +165,9 @@ BookingManager::BookingManager() {
     loadBookings();
     loadMotorbikes();
     
-    // Create sample data if no bookings exist
-    if (bookings.empty()) {
+    // Create sample data if files are empty
+    if (bookings.empty() && motorbikes.empty()) {
         createSampleData();
-    }
-    
-    // Create sample motorbikes if no motorbikes exist
-    if (motorbikes.empty()) {
-        createSampleMotorbikes();
     }
 }
 
@@ -38,65 +184,57 @@ void BookingManager::loadBookings() {
     
     string line;
     while (getline(file, line)) {
+        if (line.empty() || line[0] == '#') continue;
+        
+        // Trim whitespace
+        line.erase(0, line.find_first_not_of(" \t\r\n"));
+        line.erase(line.find_last_not_of(" \t\r\n") + 1);
+        
         if (line.empty()) continue;
-        if (line[0] == '#') continue; // Skip format/comment lines
         
         stringstream ss(line);
-        Booking booking;
+        string token;
+        vector<string> tokens;
         
-        // Read basic fields with error checking
-        if (!getline(ss, booking.bookingId, '|')) continue;
-        if (!getline(ss, booking.renterUsername, '|')) continue;
-        if (!getline(ss, booking.ownerUsername, '|')) continue;
-        if (!getline(ss, booking.motorbikeId, '|')) continue;
-        if (!getline(ss, booking.startDate, '|')) continue;
-        if (!getline(ss, booking.endDate, '|')) continue;
-        if (!getline(ss, booking.status, '|')) continue;
-        
-        // Read total cost with error handling
-        string temp;
-        if (!getline(ss, temp, '|')) continue;
-        try {
-            booking.totalCost = stod(temp);
-        } catch (const std::invalid_argument& e) {
-            booking.totalCost = 0.0; // Default value
+        while (getline(ss, token, '|')) {
+            token.erase(0, token.find_first_not_of(" \t\r\n"));
+            token.erase(token.find_last_not_of(" \t\r\n") + 1);
+            tokens.push_back(token);
         }
         
-        if (!getline(ss, booking.brand, '|')) continue;
-        if (!getline(ss, booking.model, '|')) continue;
-        if (!getline(ss, booking.color, '|')) continue;
-        if (!getline(ss, booking.size, '|')) continue;
-        if (!getline(ss, booking.plateNo, '|')) continue;
-        
-        bookings.push_back(booking);
+        if (tokens.size() >= 13) {
+            Booking booking(tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5],
+                           tokens[6], stod(tokens[7]), tokens[8], tokens[9], tokens[10], tokens[11], tokens[12]);
+            bookings.push_back(booking);
+        }
     }
-    
     file.close();
 }
 
 void BookingManager::saveBookings() {
     ofstream file(bookingFilename);
     if (!file.is_open()) {
-        cout << "Error: Cannot open bookings.txt for writing\n";
+        cout << "Error: Cannot save bookings to file." << endl;
         return;
     }
     
-    for (const Booking& booking : bookings) {
-        file << booking.bookingId << "|"
-             << booking.renterUsername << "|"
-             << booking.ownerUsername << "|"
-             << booking.motorbikeId << "|"
-             << booking.startDate << "|"
-             << booking.endDate << "|"
-             << booking.status << "|"
-             << booking.totalCost << "|"
-             << booking.brand << "|"
-             << booking.model << "|"
-             << booking.color << "|"
-             << booking.size << "|"
-             << booking.plateNo << "\n";
-    }
+    file << "# Booking Data Format: bookingId|renterUsername|ownerUsername|motorbikeId|startDate|endDate|status|totalCost|brand|model|color|size|plateNo" << endl;
     
+    for (const Booking& booking : bookings) {
+        file << booking.getBookingId() << "|"
+             << booking.getRenterUsername() << "|"
+             << booking.getOwnerUsername() << "|"
+             << booking.getMotorbikeId() << "|"
+             << booking.getStartDate() << "|"
+             << booking.getEndDate() << "|"
+             << booking.getStatus() << "|"
+             << booking.getTotalCost() << "|"
+             << booking.getBrand() << "|"
+             << booking.getModel() << "|"
+             << booking.getColor() << "|"
+             << booking.getSize() << "|"
+             << booking.getPlateNo() << endl;
+    }
     file.close();
 }
 
@@ -108,148 +246,174 @@ void BookingManager::loadMotorbikes() {
     
     string line;
     while (getline(file, line)) {
+        if (line.empty() || line[0] == '#') continue;
+        
+        // Trim whitespace
+        line.erase(0, line.find_first_not_of(" \t\r\n"));
+        line.erase(line.find_last_not_of(" \t\r\n") + 1);
+        
         if (line.empty()) continue;
-        if (line[0] == '#') continue; // Skip format/comment lines
         
         stringstream ss(line);
-        Motorbike motorbike;
+        string token;
+        vector<string> tokens;
         
-        // Read basic fields with error checking
-        if (!getline(ss, motorbike.motorbikeId, '|')) continue;
-        if (!getline(ss, motorbike.ownerUsername, '|')) continue;
-        if (!getline(ss, motorbike.brand, '|')) continue;
-        if (!getline(ss, motorbike.model, '|')) continue;
-        if (!getline(ss, motorbike.color, '|')) continue;
-        if (!getline(ss, motorbike.size, '|')) continue;
-        if (!getline(ss, motorbike.plateNo, '|')) continue;
-        
-        // Read price with error handling
-        string temp;
-        if (!getline(ss, temp, '|')) continue;
-        try {
-            motorbike.pricePerDay = stod(temp);
-        } catch (const std::invalid_argument& e) {
-            motorbike.pricePerDay = 0.0; // Default value
+        while (getline(ss, token, '|')) {
+            token.erase(0, token.find_first_not_of(" \t\r\n"));
+            token.erase(token.find_last_not_of(" \t\r\n") + 1);
+            tokens.push_back(token);
         }
         
-        if (!getline(ss, motorbike.location, '|')) continue;
-        
-        // Read availability
-        if (!getline(ss, temp, '|')) continue;
-        motorbike.isAvailable = (temp == "1");
-        
-        // Read rating with error handling
-        if (!getline(ss, temp, '|')) continue;
-        try {
-            motorbike.rating = stod(temp);
-        } catch (const std::invalid_argument& e) {
-            motorbike.rating = 5.0; // Default rating
+        if (tokens.size() >= 16) {
+            Motorbike motorbike(tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5],
+                               tokens[6], stod(tokens[7]), tokens[8], tokens[9] == "1", stod(tokens[10]),
+                               tokens[11], tokens[12], tokens[13], stod(tokens[14]), tokens[15] == "1");
+            motorbikes.push_back(motorbike);
         }
-        
-        if (!getline(ss, motorbike.description, '|')) continue;
-        
-        // Handle new fields with backward compatibility
-        if (ss.good()) {
-            getline(ss, motorbike.availableStartDate, '|');
-            getline(ss, motorbike.availableEndDate, '|');
-            
-            if (ss.good()) {
-                getline(ss, temp, '|');
-                try {
-                    motorbike.minRenterRating = stod(temp);
-                } catch (const std::invalid_argument& e) {
-                    motorbike.minRenterRating = 3.0; // Default minimum rating
-                }
-            } else {
-                motorbike.minRenterRating = 3.0; // Default minimum rating
-            }
-            
-            if (ss.good()) {
-                getline(ss, temp, '|');
-                motorbike.isListed = (temp == "1");
-            } else {
-                motorbike.isListed = false; // Default to not listed
-            }
-        } else {
-            // Set default values for old format
-            motorbike.availableStartDate = "";
-            motorbike.availableEndDate = "";
-            motorbike.minRenterRating = 3.0;
-            motorbike.isListed = false;
-        }
-        
-        motorbikes.push_back(motorbike);
     }
-    
     file.close();
 }
 
 void BookingManager::saveMotorbikes() {
     ofstream file(motorbikeFilename);
     if (!file.is_open()) {
-        cout << "Error: Cannot open motorbikes.txt for writing\n";
+        cout << "Error: Cannot save motorbikes to file." << endl;
         return;
     }
     
-    for (const Motorbike& motorbike : motorbikes) {
-        file << motorbike.motorbikeId << "|"
-             << motorbike.ownerUsername << "|"
-             << motorbike.brand << "|"
-             << motorbike.model << "|"
-             << motorbike.color << "|"
-             << motorbike.size << "|"
-             << motorbike.plateNo << "|"
-             << motorbike.pricePerDay << "|"
-             << motorbike.location << "|"
-             << (motorbike.isAvailable ? "1" : "0") << "|"
-             << motorbike.rating << "|"
-             << motorbike.description << "|"
-             << motorbike.availableStartDate << "|"
-             << motorbike.availableEndDate << "|"
-             << motorbike.minRenterRating << "|"
-             << (motorbike.isListed ? "1" : "0") << "\n";
-    }
+    file << "# Motorbike Data Format: motorbikeId|ownerUsername|brand|model|color|size|plateNo|pricePerDay|location|isAvailable|rating|description|availableStartDate|availableEndDate|minRenterRating|isListed" << endl;
     
+    for (const Motorbike& motorbike : motorbikes) {
+        file << motorbike.getMotorbikeId() << "|"
+             << motorbike.getOwnerUsername() << "|"
+             << motorbike.getBrand() << "|"
+             << motorbike.getModel() << "|"
+             << motorbike.getColor() << "|"
+             << motorbike.getSize() << "|"
+             << motorbike.getPlateNo() << "|"
+             << motorbike.getPricePerDay() << "|"
+             << motorbike.getLocation() << "|"
+             << (motorbike.getIsAvailable() ? "1" : "0") << "|"
+             << motorbike.getRating() << "|"
+             << motorbike.getDescription() << "|"
+             << motorbike.getAvailableStartDate() << "|"
+             << motorbike.getAvailableEndDate() << "|"
+             << motorbike.getMinRenterRating() << "|"
+             << (motorbike.getIsListed() ? "1" : "0") << endl;
+    }
     file.close();
 }
 
 string BookingManager::generateBookingId() {
-    static int counter = 1;
-    return "BK" + to_string(counter++);
+    return "BK" + to_string(bookings.size() + 1);
 }
 
-bool BookingManager::createBooking(const string& renter, const string& motorbikeId, 
-                                  const string& startDate, const string& endDate) {
+string BookingManager::generateMotorbikeId() {
+    return "MB" + to_string(motorbikes.size() + 1);
+}
+
+bool BookingManager::createBooking(const string& renter, const string& motorbikeId,
+                                  const string& startDate, const string& endDate, Auth& auth) {
+    // Find the motorbike
     Motorbike* motorbike = getMotorbikeById(motorbikeId);
-    if (!motorbike || !motorbike->isAvailable) {
+    if (!motorbike) {
+        cout << "Motorbike not found." << endl;
         return false;
     }
     
-    Booking booking;
-    booking.bookingId = generateBookingId();
-    booking.renterUsername = renter;
-    booking.ownerUsername = motorbike->ownerUsername;
-    booking.motorbikeId = motorbikeId;
-    booking.startDate = startDate;
-    booking.endDate = endDate;
-    booking.status = "Pending";
-    booking.brand = motorbike->brand;
-    booking.model = motorbike->model;
-    booking.color = motorbike->color;
-    booking.size = motorbike->size;
-    booking.plateNo = motorbike->plateNo;
-    booking.totalCost = motorbike->pricePerDay; // Simplified calculation
+    // Validate renter requirements
+    double renterRating = auth.getUserRenterRating(renter);
+    if (renterRating < motorbike->getMinRenterRating()) {
+        cout << "Your rating (" << renterRating << ") is below the required rating (" 
+             << motorbike->getMinRenterRating() << ")." << endl;
+        return false;
+    }
+    
+    double totalCost = calculateTotalCost(*motorbike, startDate, endDate);
+    double renterCPs = auth.getUserCreditPoints(renter);
+    if (renterCPs < totalCost) {
+        cout << "Insufficient credit points. Required: " << totalCost 
+             << " CP, Available: " << renterCPs << " CP." << endl;
+        return false;
+    }
+    
+    // Check for active rentals
+    if (hasActiveRental(renter)) {
+        cout << "You already have an active rental." << endl;
+        return false;
+    }
+    
+    // Check license requirement
+    int engineSize = motorbike->getEngineSize();
+    if (engineSize > 50 && !hasValidLicense(renter, auth, engineSize)) {
+        cout << "Valid license required for motorbikes over 50cc." << endl;
+        return false;
+    }
+    
+    // Check date availability
+    if (!motorbike->isAvailableForDateRange(startDate, endDate)) {
+        cout << "Motorbike not available for the selected date range." << endl;
+        return false;
+    }
+    
+    // Check for overlapping approved bookings
+    if (hasOverlappingApprovedBookings(motorbikeId, startDate, endDate)) {
+        cout << "Motorbike already booked for this period." << endl;
+        return false;
+    }
+    
+    // Create booking
+    string bookingId = generateBookingId();
+    Booking booking(bookingId, renter, motorbike->getOwnerUsername(), motorbikeId,
+                   startDate, endDate, "Pending", totalCost, motorbike->getBrand(),
+                   motorbike->getModel(), motorbike->getColor(), motorbike->getSize(),
+                   motorbike->getPlateNo());
     
     bookings.push_back(booking);
     saveBookings();
+    
+    cout << "Rental request submitted successfully!" << endl;
+    cout << "Booking ID: " << bookingId << endl;
+    cout << "Total Cost: " << totalCost << " CP" << endl;
+    cout << "Status: Pending approval from owner" << endl;
+    
     return true;
 }
 
-bool BookingManager::approveBooking(const string& bookingId, const string& owner) {
+bool BookingManager::approveBooking(const string& bookingId, const string& owner, Auth& auth) {
     for (Booking& booking : bookings) {
-        if (booking.bookingId == bookingId && booking.ownerUsername == owner) {
-            booking.status = "Approved";
+        if (booking.getBookingId() == bookingId && booking.getOwnerUsername() == owner && booking.isPending()) {
+            // Check for overlapping approved bookings
+            if (hasOverlappingApprovedBookings(booking.getMotorbikeId(), booking.getStartDate(), booking.getEndDate())) {
+                cout << "Cannot approve: overlapping booking exists." << endl;
+                return false;
+            }
+            
+            // Deduct credit points
+            if (!auth.deductCreditPoints(booking.getRenterUsername(), booking.getTotalCost())) {
+                cout << "Failed to deduct credit points." << endl;
+                return false;
+            }
+            
+            // Update booking status
+            booking.setStatus("Approved");
+            
+            // Reject overlapping requests
+            rejectOverlappingRequests(booking.getMotorbikeId(), booking.getStartDate(), 
+                                    booking.getEndDate(), bookingId);
+            
+            // Mark motorbike as unavailable
+            Motorbike* motorbike = getMotorbikeById(booking.getMotorbikeId());
+            if (motorbike) {
+                motorbike->setIsAvailable(false);
+            }
+            
             saveBookings();
+            saveMotorbikes();
+            
+            cout << "Booking approved successfully!" << endl;
+            cout << "Credit points deducted: " << booking.getTotalCost() << " CP" << endl;
+            
             return true;
         }
     }
@@ -258,9 +422,10 @@ bool BookingManager::approveBooking(const string& bookingId, const string& owner
 
 bool BookingManager::rejectBooking(const string& bookingId, const string& owner) {
     for (Booking& booking : bookings) {
-        if (booking.bookingId == bookingId && booking.ownerUsername == owner) {
-            booking.status = "Rejected";
+        if (booking.getBookingId() == bookingId && booking.getOwnerUsername() == owner && booking.isPending()) {
+            booking.setStatus("Rejected");
             saveBookings();
+            cout << "Booking rejected." << endl;
             return true;
         }
     }
@@ -270,7 +435,7 @@ bool BookingManager::rejectBooking(const string& bookingId, const string& owner)
 vector<Booking> BookingManager::getUserBookings(const string& username) {
     vector<Booking> userBookings;
     for (const Booking& booking : bookings) {
-        if (booking.renterUsername == username) {
+        if (booking.getRenterUsername() == username) {
             userBookings.push_back(booking);
         }
     }
@@ -278,17 +443,17 @@ vector<Booking> BookingManager::getUserBookings(const string& username) {
 }
 
 vector<Booking> BookingManager::getUserRentalRequests(const string& username) {
-    vector<Booking> rentalRequests;
+    vector<Booking> requests;
     for (const Booking& booking : bookings) {
-        if (booking.ownerUsername == username && booking.status == "Pending") {
-            rentalRequests.push_back(booking);
+        if (booking.getOwnerUsername() == username && booking.isPending()) {
+            requests.push_back(booking);
         }
     }
-    return rentalRequests;
+    return requests;
 }
 
 vector<Booking> BookingManager::getAllBookings() {
-    return bookings; // Return all bookings for admin view
+    return bookings;
 }
 
 bool BookingManager::addMotorbike(const Motorbike& motorbike) {
@@ -300,7 +465,7 @@ bool BookingManager::addMotorbike(const Motorbike& motorbike) {
 vector<Motorbike> BookingManager::getAvailableMotorbikes() {
     vector<Motorbike> available;
     for (const Motorbike& motorbike : motorbikes) {
-        if (motorbike.isAvailable) {
+        if (motorbike.getIsAvailable() && motorbike.getIsListed()) {
             available.push_back(motorbike);
         }
     }
@@ -310,7 +475,7 @@ vector<Motorbike> BookingManager::getAvailableMotorbikes() {
 vector<Motorbike> BookingManager::getGuestMotorbikes() {
     vector<Motorbike> guestMotorbikes;
     for (const Motorbike& motorbike : motorbikes) {
-        if (motorbike.isListed && motorbike.isAvailable) {
+        if (motorbike.getIsListed()) {
             guestMotorbikes.push_back(motorbike);
         }
     }
@@ -320,7 +485,7 @@ vector<Motorbike> BookingManager::getGuestMotorbikes() {
 vector<Motorbike> BookingManager::getUserMotorbikes(const string& username) {
     vector<Motorbike> userMotorbikes;
     for (const Motorbike& motorbike : motorbikes) {
-        if (motorbike.ownerUsername == username) {
+        if (motorbike.getOwnerUsername() == username) {
             userMotorbikes.push_back(motorbike);
         }
     }
@@ -329,30 +494,21 @@ vector<Motorbike> BookingManager::getUserMotorbikes(const string& username) {
 
 Motorbike* BookingManager::getMotorbikeById(const string& motorbikeId) {
     for (Motorbike& motorbike : motorbikes) {
-        if (motorbike.motorbikeId == motorbikeId) {
+        if (motorbike.getMotorbikeId() == motorbikeId) {
             return &motorbike;
         }
     }
     return nullptr;
 }
 
-// Electric motorbike listing management methods
-
-string BookingManager::generateMotorbikeId() {
-    static int counter = 1;
-    return "MB" + to_string(counter++);
-}
-
-bool BookingManager::listMotorbike(const string& ownerUsername, const string& brand, 
-                                  const string& model, const string& color, 
-                                  const string& size, const string& plateNo,
-                                  double pricePerDay, const string& location,
+bool BookingManager::listMotorbike(const string& ownerUsername, const string& brand,
+                                  const string& model, const string& color, const string& size,
+                                  const string& plateNo, double pricePerDay, const string& location,
                                   const string& availableStartDate, const string& availableEndDate,
                                   double minRenterRating) {
-    
-    // Check if user already has a motorbike listed
+    // Check if user already has a listed motorbike
     if (isMotorbikeListed(ownerUsername)) {
-        cout << "Error: You already have a motorbike listed. Each member can only list one motorbike.\n";
+        cout << "You can only list one motorbike at a time." << endl;
         return false;
     }
     
@@ -361,64 +517,43 @@ bool BookingManager::listMotorbike(const string& ownerUsername, const string& br
         return false;
     }
     
-    // Create new motorbike listing
-    Motorbike motorbike;
-    motorbike.motorbikeId = generateMotorbikeId();
-    motorbike.ownerUsername = ownerUsername;
-    motorbike.brand = brand;
-    motorbike.model = model;
-    motorbike.color = color;
-    motorbike.size = size;
-    motorbike.plateNo = plateNo;
-    motorbike.pricePerDay = pricePerDay;
-    motorbike.location = location;
-    motorbike.isAvailable = true;
-    motorbike.rating = 5.0; // Default rating for new listing
-    motorbike.description = brand + " " + model + " - " + color + " " + size;
-    motorbike.availableStartDate = availableStartDate;
-    motorbike.availableEndDate = availableEndDate;
-    motorbike.minRenterRating = minRenterRating;
-    motorbike.isListed = true;
+    string motorbikeId = generateMotorbikeId();
+    string description = brand + " " + model + " - " + color + " " + size;
+    
+    Motorbike motorbike(motorbikeId, ownerUsername, brand, model, color, size, plateNo,
+                       pricePerDay, location, true, 0.0, description, availableStartDate,
+                       availableEndDate, minRenterRating, true);
     
     motorbikes.push_back(motorbike);
     saveMotorbikes();
     
-    cout << "Motorbike listed successfully!\n";
-    cout << "Motorbike ID: " << motorbike.motorbikeId << "\n";
-    cout << "Brand: " << brand << " " << model << "\n";
-    cout << "Location: " << location << "\n";
-    cout << "Daily Rate: " << pricePerDay << " CP\n";
-    cout << "Available Period: " << availableStartDate << " to " << availableEndDate << "\n";
-    cout << "Minimum Renter Rating: " << minRenterRating << "\n";
+    cout << "Motorbike listed successfully!" << endl;
+    cout << "Motorbike ID: " << motorbikeId << endl;
     
     return true;
 }
 
 bool BookingManager::unlistMotorbike(const string& ownerUsername) {
     for (Motorbike& motorbike : motorbikes) {
-        if (motorbike.ownerUsername == ownerUsername && motorbike.isListed) {
-            // Check if motorbike is currently booked
+        if (motorbike.getOwnerUsername() == ownerUsername && motorbike.getIsListed()) {
             if (isMotorbikeBooked(ownerUsername)) {
-                cout << "Error: Cannot unlist motorbike that is currently booked.\n";
+                cout << "Cannot unlist: motorbike has active bookings." << endl;
                 return false;
             }
             
-            motorbike.isListed = false;
-            motorbike.isAvailable = false;
+            motorbike.setIsListed(false);
             saveMotorbikes();
-            
-            cout << "Motorbike unlisted successfully!\n";
+            cout << "Motorbike unlisted successfully." << endl;
             return true;
         }
     }
-    
-    cout << "Error: No listed motorbike found for this user.\n";
+    cout << "No listed motorbike found for this user." << endl;
     return false;
 }
 
 bool BookingManager::isMotorbikeListed(const string& ownerUsername) {
     for (const Motorbike& motorbike : motorbikes) {
-        if (motorbike.ownerUsername == ownerUsername && motorbike.isListed) {
+        if (motorbike.getOwnerUsername() == ownerUsername && motorbike.getIsListed()) {
             return true;
         }
     }
@@ -427,590 +562,156 @@ bool BookingManager::isMotorbikeListed(const string& ownerUsername) {
 
 bool BookingManager::isMotorbikeBooked(const string& ownerUsername) {
     for (const Booking& booking : bookings) {
-        if (booking.ownerUsername == ownerUsername && 
-            (booking.status == "Pending" || booking.status == "Approved")) {
+        if (booking.getOwnerUsername() == ownerUsername && booking.isApproved()) {
             return true;
         }
     }
     return false;
 }
 
-bool BookingManager::validateListingData(const string& location, const string& startDate, 
+bool BookingManager::validateListingData(const string& location, const string& startDate,
                                         const string& endDate, double pricePerDay, double minRating) {
-    // Validate location (HCMC or Hanoi only)
     if (location != "HCMC" && location != "Hanoi") {
-        cout << "Error: Location must be either 'HCMC' or 'Hanoi'.\n";
+        cout << "Invalid location. Only HCMC and Hanoi are supported." << endl;
         return false;
     }
     
-    // Validate price per day (must be positive)
     if (pricePerDay <= 0) {
-        cout << "Error: Daily rental rate must be greater than 0 CP.\n";
+        cout << "Price per day must be positive." << endl;
         return false;
     }
     
-    // Validate minimum renter rating (must be between 1.0 and 5.0)
-    if (minRating < 1.0 || minRating > 5.0) {
-        cout << "Error: Minimum renter rating must be between 1.0 and 5.0.\n";
+    if (minRating < 0 || minRating > 5) {
+        cout << "Minimum renter rating must be between 0 and 5." << endl;
         return false;
     }
     
-    // Validate date format and logic (basic validation)
-    if (startDate.empty() || endDate.empty()) {
-        cout << "Error: Available rental period dates cannot be empty.\n";
+    if (startDate >= endDate) {
+        cout << "Start date must be before end date." << endl;
         return false;
     }
-    
-    // Additional date validation could be added here
-    // For now, we'll assume dates are in DD/MM/YYYY format
     
     return true;
 }
 
 double BookingManager::getUserRenterRating(const string& username) {
-    // Simplified implementation - return default rating
-    // TODO: Implement actual rating calculation based on username
-    (void)username; // Suppress unused parameter warning
-    return 3.5;
+    // This would typically come from the Auth system
+    return 3.0; // Default rating
 }
 
 double BookingManager::getUserMotorbikeRating(const string& username) {
-    // Simplified implementation - return default rating
-    // TODO: Implement actual rating calculation based on username
-    (void)username; // Suppress unused parameter warning
-    return 4.6;
+    double totalRating = 0.0;
+    int count = 0;
+    
+    for (const Motorbike& motorbike : motorbikes) {
+        if (motorbike.getOwnerUsername() == username) {
+            totalRating += motorbike.getRating();
+            count++;
+        }
+    }
+    
+    return count > 0 ? totalRating / count : 0.0;
 }
 
-void BookingManager::createSampleData() {
-    // Create sample bookings for demonstration
-    Booking booking1;
-    booking1.bookingId = "BK1";
-    booking1.renterUsername = "iAmMember1";
-    booking1.ownerUsername = "iAmMember8";
-    booking1.motorbikeId = "MB1";
-    booking1.startDate = "15/08/2025";
-    booking1.endDate = "17/08/2025";
-    booking1.status = "Rejected";
-    booking1.totalCost = 50.0;
-    booking1.brand = "VinFast";
-    booking1.model = "Klara S";
-    booking1.color = "Red";
-    booking1.size = "50cc";
-    booking1.plateNo = "59X3-216.86";
-    
-    bookings.push_back(booking1);
-    
-    // Create sample rental requests
-    Booking request1;
-    request1.bookingId = "BK2";
-    request1.renterUsername = "IAmMember3";
-    request1.ownerUsername = "iAmMember1";
-    request1.motorbikeId = "MB2";
-    request1.startDate = "20/08/2025";
-    request1.endDate = "21/08/2025";
-    request1.status = "Pending";
-    request1.totalCost = 30.0;
-    request1.brand = "Honda";
-    request1.model = "Vision";
-    request1.color = "Blue";
-    request1.size = "110cc";
-    request1.plateNo = "51A-12345";
-    
-    bookings.push_back(request1);
-    
-    Booking request2;
-    request2.bookingId = "BK3";
-    request2.renterUsername = "IAmMember4";
-    request2.ownerUsername = "iAmMember1";
-    request2.motorbikeId = "MB3";
-    request2.startDate = "21/08/2025";
-    request2.endDate = "24/08/2025";
-    request2.status = "Pending";
-    request2.totalCost = 90.0;
-    request2.brand = "Yamaha";
-    request2.model = "Exciter";
-    request2.color = "Black";
-    request2.size = "150cc";
-    request2.plateNo = "51B-67890";
-    
-    bookings.push_back(request2);
-    
-    Booking request3;
-    request3.bookingId = "BK4";
-    request3.renterUsername = "IAmMember5";
-    request3.ownerUsername = "iAmMember1";
-    request3.motorbikeId = "MB4";
-    request3.startDate = "21/08/2025";
-    request3.endDate = "23/08/2025";
-    request3.status = "Pending";
-    request3.totalCost = 60.0;
-    request3.brand = "Suzuki";
-    request3.model = "Raider";
-    request3.color = "White";
-    request3.size = "125cc";
-    request3.plateNo = "51C-11111";
-    
-    bookings.push_back(request3);
-    
-    Booking request4;
-    request4.bookingId = "BK5";
-    request4.renterUsername = "IAmMember2";
-    request4.ownerUsername = "iAmMember1";
-    request4.motorbikeId = "MB5";
-    request4.startDate = "21/08/2025";
-    request4.endDate = "22/08/2025";
-    request4.status = "Pending";
-    request4.totalCost = 40.0;
-    request4.brand = "Piaggio";
-    request4.model = "Liberty";
-    request4.color = "Green";
-    request4.size = "125cc";
-    request4.plateNo = "51D-22222";
-    
-    bookings.push_back(request4);
-    
-    saveBookings();
-}
-
-void BookingManager::createSampleMotorbikes() {
-    // Create 20 sample electric motorbikes with diverse specifications
-    
-    // HCMC Motorbikes (10)
-    Motorbike mb1;
-    mb1.motorbikeId = "MB1";
-    mb1.ownerUsername = "iAmMember1";
-    mb1.brand = "VinFast";
-    mb1.model = "Klara S";
-    mb1.color = "Red";
-    mb1.size = "50cc";
-    mb1.plateNo = "59X3-216.86";
-    mb1.pricePerDay = 25.0;
-    mb1.location = "HCMC";
-    mb1.isAvailable = true;
-    mb1.rating = 4.5;
-    mb1.description = "VinFast Klara S - Red 50cc";
-    mb1.availableStartDate = "01/08/2025";
-    mb1.availableEndDate = "31/12/2025";
-    mb1.minRenterRating = 3.5;
-    mb1.isListed = true;
-    motorbikes.push_back(mb1);
-    
-    Motorbike mb2;
-    mb2.motorbikeId = "MB2";
-    mb2.ownerUsername = "iAmMember2";
-    mb2.brand = "Honda";
-    mb2.model = "Vision";
-    mb2.color = "Blue";
-    mb2.size = "110cc";
-    mb2.plateNo = "51A-12345";
-    mb2.pricePerDay = 30.0;
-    mb2.location = "HCMC";
-    mb2.isAvailable = true;
-    mb2.rating = 4.2;
-    mb2.description = "Honda Vision - Blue 110cc";
-    mb2.availableStartDate = "01/08/2025";
-    mb2.availableEndDate = "30/11/2025";
-    mb2.minRenterRating = 3.0;
-    mb2.isListed = true;
-    motorbikes.push_back(mb2);
-    
-    Motorbike mb3;
-    mb3.motorbikeId = "MB3";
-    mb3.ownerUsername = "iAmMember3";
-    mb3.brand = "Yamaha";
-    mb3.model = "Exciter";
-    mb3.color = "Black";
-    mb3.size = "150cc";
-    mb3.plateNo = "51B-67890";
-    mb3.pricePerDay = 45.0;
-    mb3.location = "HCMC";
-    mb3.isAvailable = true;
-    mb3.rating = 4.8;
-    mb3.description = "Yamaha Exciter - Black 150cc";
-    mb3.availableStartDate = "01/08/2025";
-    mb3.availableEndDate = "31/12/2025";
-    mb3.minRenterRating = 4.0;
-    mb3.isListed = true;
-    motorbikes.push_back(mb3);
-    
-    Motorbike mb4;
-    mb4.motorbikeId = "MB4";
-    mb4.ownerUsername = "iAmMember4";
-    mb4.brand = "Suzuki";
-    mb4.model = "Raider";
-    mb4.color = "White";
-    mb4.size = "125cc";
-    mb4.plateNo = "51C-11111";
-    mb4.pricePerDay = 35.0;
-    mb4.location = "HCMC";
-    mb4.isAvailable = true;
-    mb4.rating = 4.0;
-    mb4.description = "Suzuki Raider - White 125cc";
-    mb4.availableStartDate = "01/08/2025";
-    mb4.availableEndDate = "30/09/2025";
-    mb4.minRenterRating = 3.5;
-    mb4.isListed = true;
-    motorbikes.push_back(mb4);
-    
-    Motorbike mb5;
-    mb5.motorbikeId = "MB5";
-    mb5.ownerUsername = "iAmMember5";
-    mb5.brand = "Piaggio";
-    mb5.model = "Liberty";
-    mb5.color = "Green";
-    mb5.size = "125cc";
-    mb5.plateNo = "51D-22222";
-    mb5.pricePerDay = 40.0;
-    mb5.location = "HCMC";
-    mb5.isAvailable = true;
-    mb5.rating = 4.3;
-    mb5.description = "Piaggio Liberty - Green 125cc";
-    mb5.availableStartDate = "01/08/2025";
-    mb5.availableEndDate = "31/10/2025";
-    mb5.minRenterRating = 3.8;
-    mb5.isListed = true;
-    motorbikes.push_back(mb5);
-    
-    Motorbike mb6;
-    mb6.motorbikeId = "MB6";
-    mb6.ownerUsername = "iAmMember6";
-    mb6.brand = "VinFast";
-    mb6.model = "Theon";
-    mb6.color = "Silver";
-    mb6.size = "150cc";
-    mb6.plateNo = "51E-33333";
-    mb6.pricePerDay = 50.0;
-    mb6.location = "HCMC";
-    mb6.isAvailable = true;
-    mb6.rating = 4.6;
-    mb6.description = "VinFast Theon - Silver 150cc";
-    mb6.availableStartDate = "01/08/2025";
-    mb6.availableEndDate = "31/12/2025";
-    mb6.minRenterRating = 4.2;
-    mb6.isListed = true;
-    motorbikes.push_back(mb6);
-    
-    Motorbike mb7;
-    mb7.motorbikeId = "MB7";
-    mb7.ownerUsername = "iAmMember7";
-    mb7.brand = "Honda";
-    mb7.model = "Air Blade";
-    mb7.color = "Orange";
-    mb7.size = "125cc";
-    mb7.plateNo = "51F-44444";
-    mb7.pricePerDay = 38.0;
-    mb7.location = "HCMC";
-    mb7.isAvailable = true;
-    mb7.rating = 4.1;
-    mb7.description = "Honda Air Blade - Orange 125cc";
-    mb7.availableStartDate = "01/08/2025";
-    mb7.availableEndDate = "30/11/2025";
-    mb7.minRenterRating = 3.2;
-    mb7.isListed = true;
-    motorbikes.push_back(mb7);
-    
-    Motorbike mb8;
-    mb8.motorbikeId = "MB8";
-    mb8.ownerUsername = "iAmMember8";
-    mb8.brand = "Yamaha";
-    mb8.model = "NMAX";
-    mb8.color = "Gray";
-    mb8.size = "155cc";
-    mb8.plateNo = "51G-55555";
-    mb8.pricePerDay = 55.0;
-    mb8.location = "HCMC";
-    mb8.isAvailable = true;
-    mb8.rating = 4.7;
-    mb8.description = "Yamaha NMAX - Gray 155cc";
-    mb8.availableStartDate = "01/08/2025";
-    mb8.availableEndDate = "31/12/2025";
-    mb8.minRenterRating = 4.5;
-    mb8.isListed = true;
-    motorbikes.push_back(mb8);
-    
-    Motorbike mb9;
-    mb9.motorbikeId = "MB9";
-    mb9.ownerUsername = "iAmMember9";
-    mb9.brand = "Suzuki";
-    mb9.model = "Address";
-    mb9.color = "Yellow";
-    mb9.size = "110cc";
-    mb9.plateNo = "51H-66666";
-    mb9.pricePerDay = 28.0;
-    mb9.location = "HCMC";
-    mb9.isAvailable = true;
-    mb9.rating = 3.9;
-    mb9.description = "Suzuki Address - Yellow 110cc";
-    mb9.availableStartDate = "01/08/2025";
-    mb9.availableEndDate = "30/09/2025";
-    mb9.minRenterRating = 3.0;
-    mb9.isListed = true;
-    motorbikes.push_back(mb9);
-    
-    Motorbike mb10;
-    mb10.motorbikeId = "MB10";
-    mb10.ownerUsername = "iAmMember10";
-    mb10.brand = "VinFast";
-    mb10.model = "Ludo";
-    mb10.color = "Purple";
-    mb10.size = "50cc";
-    mb10.plateNo = "51I-77777";
-    mb10.pricePerDay = 20.0;
-    mb10.location = "HCMC";
-    mb10.isAvailable = true;
-    mb10.rating = 4.0;
-    mb10.description = "VinFast Ludo - Purple 50cc";
-    mb10.availableStartDate = "01/08/2025";
-    mb10.availableEndDate = "31/10/2025";
-    mb10.minRenterRating = 2.5;
-    mb10.isListed = true;
-    motorbikes.push_back(mb10);
-    
-    // Hanoi Motorbikes (10)
-    Motorbike mb11;
-    mb11.motorbikeId = "MB11";
-    mb11.ownerUsername = "iAmMember11";
-    mb11.brand = "Honda";
-    mb11.model = "SH";
-    mb11.color = "White";
-    mb11.size = "150cc";
-    mb11.plateNo = "30A-88888";
-    mb11.pricePerDay = 60.0;
-    mb11.location = "Hanoi";
-    mb11.isAvailable = true;
-    mb11.rating = 4.9;
-    mb11.description = "Honda SH - White 150cc";
-    mb11.availableStartDate = "01/08/2025";
-    mb11.availableEndDate = "31/12/2025";
-    mb11.minRenterRating = 4.5;
-    mb11.isListed = true;
-    motorbikes.push_back(mb11);
-    
-    Motorbike mb12;
-    mb12.motorbikeId = "MB12";
-    mb12.ownerUsername = "iAmMember12";
-    mb12.brand = "Yamaha";
-    mb12.model = "XSR";
-    mb12.color = "Black";
-    mb12.size = "155cc";
-    mb12.plateNo = "30B-99999";
-    mb12.pricePerDay = 65.0;
-    mb12.location = "Hanoi";
-    mb12.isAvailable = true;
-    mb12.rating = 4.8;
-    mb12.description = "Yamaha XSR - Black 155cc";
-    mb12.availableStartDate = "01/08/2025";
-    mb12.availableEndDate = "30/11/2025";
-    mb12.minRenterRating = 4.3;
-    mb12.isListed = true;
-    motorbikes.push_back(mb12);
-    
-    Motorbike mb13;
-    mb13.motorbikeId = "MB13";
-    mb13.ownerUsername = "iAmMember13";
-    mb13.brand = "VinFast";
-    mb13.model = "Klara";
-    mb13.color = "Blue";
-    mb13.size = "50cc";
-    mb13.plateNo = "30C-10101";
-    mb13.pricePerDay = 22.0;
-    mb13.location = "Hanoi";
-    mb13.isAvailable = true;
-    mb13.rating = 4.2;
-    mb13.description = "VinFast Klara - Blue 50cc";
-    mb13.availableStartDate = "01/08/2025";
-    mb13.availableEndDate = "31/10/2025";
-    mb13.minRenterRating = 3.0;
-    mb13.isListed = true;
-    motorbikes.push_back(mb13);
-    
-    Motorbike mb14;
-    mb14.motorbikeId = "MB14";
-    mb14.ownerUsername = "iAmMember14";
-    mb14.brand = "Suzuki";
-    mb14.model = "Burgman";
-    mb14.color = "Red";
-    mb14.size = "125cc";
-    mb14.plateNo = "30D-20202";
-    mb14.pricePerDay = 42.0;
-    mb14.location = "Hanoi";
-    mb14.isAvailable = true;
-    mb14.rating = 4.4;
-    mb14.description = "Suzuki Burgman - Red 125cc";
-    mb14.availableStartDate = "01/08/2025";
-    mb14.availableEndDate = "31/12/2025";
-    mb14.minRenterRating = 3.8;
-    mb14.isListed = true;
-    motorbikes.push_back(mb14);
-    
-    Motorbike mb15;
-    mb15.motorbikeId = "MB15";
-    mb15.ownerUsername = "iAmMember15";
-    mb15.brand = "Honda";
-    mb15.model = "PCX";
-    mb15.color = "Silver";
-    mb15.size = "150cc";
-    mb15.plateNo = "30E-30303";
-    mb15.pricePerDay = 58.0;
-    mb15.location = "Hanoi";
-    mb15.isAvailable = true;
-    mb15.rating = 4.6;
-    mb15.description = "Honda PCX - Silver 150cc";
-    mb15.availableStartDate = "01/08/2025";
-    mb15.availableEndDate = "30/11/2025";
-    mb15.minRenterRating = 4.2;
-    mb15.isListed = true;
-    motorbikes.push_back(mb15);
-    
-    Motorbike mb16;
-    mb16.motorbikeId = "MB16";
-    mb16.ownerUsername = "iAmMember16";
-    mb16.brand = "Yamaha";
-    mb16.model = "Aerox";
-    mb16.color = "Green";
-    mb16.size = "155cc";
-    mb16.plateNo = "30F-40404";
-    mb16.pricePerDay = 52.0;
-    mb16.location = "Hanoi";
-    mb16.isAvailable = true;
-    mb16.rating = 4.3;
-    mb16.description = "Yamaha Aerox - Green 155cc";
-    mb16.availableStartDate = "01/08/2025";
-    mb16.availableEndDate = "31/10/2025";
-    mb16.minRenterRating = 3.9;
-    mb16.isListed = true;
-    motorbikes.push_back(mb16);
-    
-    Motorbike mb17;
-    mb17.motorbikeId = "MB17";
-    mb17.ownerUsername = "iAmMember17";
-    mb17.brand = "VinFast";
-    mb17.model = "Theon";
-    mb17.color = "Orange";
-    mb17.size = "150cc";
-    mb17.plateNo = "30G-50505";
-    mb17.pricePerDay = 48.0;
-    mb17.location = "Hanoi";
-    mb17.isAvailable = true;
-    mb17.rating = 4.5;
-    mb17.description = "VinFast Theon - Orange 150cc";
-    mb17.availableStartDate = "01/08/2025";
-    mb17.availableEndDate = "31/12/2025";
-    mb17.minRenterRating = 4.0;
-    mb17.isListed = true;
-    motorbikes.push_back(mb17);
-    
-    Motorbike mb18;
-    mb18.motorbikeId = "MB18";
-    mb18.ownerUsername = "iAmMember18";
-    mb18.brand = "Piaggio";
-    mb18.model = "Medley";
-    mb18.color = "Gray";
-    mb18.size = "125cc";
-    mb18.plateNo = "30H-60606";
-    mb18.pricePerDay = 45.0;
-    mb18.location = "Hanoi";
-    mb18.isAvailable = true;
-    mb18.rating = 4.1;
-    mb18.description = "Piaggio Medley - Gray 125cc";
-    mb18.availableStartDate = "01/08/2025";
-    mb18.availableEndDate = "30/09/2025";
-    mb18.minRenterRating = 3.5;
-    mb18.isListed = true;
-    motorbikes.push_back(mb18);
-    
-    Motorbike mb19;
-    mb19.motorbikeId = "MB19";
-    mb19.ownerUsername = "iAmMember19";
-    mb19.brand = "Honda";
-    mb19.model = "Lead";
-    mb19.color = "Yellow";
-    mb19.size = "110cc";
-    mb19.plateNo = "30I-70707";
-    mb19.pricePerDay = 32.0;
-    mb19.location = "Hanoi";
-    mb19.isAvailable = true;
-    mb19.rating = 3.8;
-    mb19.description = "Honda Lead - Yellow 110cc";
-    mb19.availableStartDate = "01/08/2025";
-    mb19.availableEndDate = "31/10/2025";
-    mb19.minRenterRating = 3.2;
-    mb19.isListed = true;
-    motorbikes.push_back(mb19);
-    
-    Motorbike mb20;
-    mb20.motorbikeId = "MB20";
-    mb20.ownerUsername = "iAmMember20";
-    mb20.brand = "Suzuki";
-    mb20.model = "Swish";
-    mb20.color = "Purple";
-    mb20.size = "125cc";
-    mb20.plateNo = "30J-80808";
-    mb20.pricePerDay = 38.0;
-    mb20.location = "Hanoi";
-    mb20.isAvailable = true;
-    mb20.rating = 4.0;
-    mb20.description = "Suzuki Swish - Purple 125cc";
-    mb20.availableStartDate = "01/08/2025";
-    mb20.availableEndDate = "30/11/2025";
-    mb20.minRenterRating = 3.6;
-    mb20.isListed = true;
-    motorbikes.push_back(mb20);
-    
-    saveMotorbikes();
-}
-
-// Motorbike search and filtering methods implementation
-
-vector<Motorbike> BookingManager::searchMotorbikes(const string& searchDate, const string& city, 
-                                                   const string& username, Auth& auth) {
+vector<Motorbike> BookingManager::searchMotorbikes(const string& searchDate, const string& city,
+                                                  const string& username, Auth& auth) {
     vector<Motorbike> results;
-    
     for (const Motorbike& motorbike : motorbikes) {
         if (meetsSearchCriteria(motorbike, searchDate, city, username, auth)) {
             results.push_back(motorbike);
         }
     }
-    
     return results;
 }
 
-bool BookingManager::meetsSearchCriteria(const Motorbike& motorbike, const string& searchDate, 
+vector<Motorbike> BookingManager::searchMotorbikesByDateRange(const string& startDate, const string& endDate,
+                                                             const string& city, const string& username, Auth& auth) {
+    vector<Motorbike> results;
+    for (const Motorbike& motorbike : motorbikes) {
+        if (meetsDateRangeSearchCriteria(motorbike, startDate, endDate, city, username, auth)) {
+            results.push_back(motorbike);
+        }
+    }
+    return results;
+}
+
+bool BookingManager::meetsSearchCriteria(const Motorbike& motorbike, const string& searchDate,
                                         const string& city, const string& username, Auth& auth) {
     // Check if motorbike is listed and available
-    if (!motorbike.isListed || !motorbike.isAvailable) {
+    if (!motorbike.getIsListed() || !motorbike.getIsAvailable()) {
         return false;
     }
     
-    // Check if motorbike is in the selected city
-    if (motorbike.location != city) {
+    // Check location
+    if (motorbike.getLocation() != city) {
         return false;
     }
     
-    // Check if search date is within available period
-    if (!isDateInRange(searchDate, motorbike.availableStartDate, motorbike.availableEndDate)) {
+    // Check date availability
+    if (!motorbike.isAvailableForDate(searchDate)) {
         return false;
     }
     
-    // Get user's renter rating
-    double userRating = auth.getUserRenterRating(username);
-    
-    // Check if user's rating meets minimum requirement
-    if (userRating < motorbike.minRenterRating) {
+    // Check renter rating requirement
+    double renterRating = auth.getUserRenterRating(username);
+    if (renterRating < motorbike.getMinRenterRating()) {
         return false;
     }
     
-    // Calculate total cost for one day rental
-    double totalCost = motorbike.pricePerDay;
-    
-    // Check if user has sufficient credit points
-    double userCreditPoints = auth.getUserCreditPoints(username);
-    if (userCreditPoints < totalCost) {
+    // Check credit points
+    double totalCost = calculateTotalCost(motorbike, searchDate, searchDate);
+    double userCPs = auth.getUserCreditPoints(username);
+    if (userCPs < totalCost) {
         return false;
     }
     
-    // Check license requirement for engine size > 50cc
-    int engineSize = getEngineSize(motorbike.size);
+    // Check license requirement
+    int engineSize = motorbike.getEngineSize();
+    if (engineSize > 50 && !hasValidLicense(username, auth, engineSize)) {
+        return false;
+    }
+    
+    return true;
+}
+
+bool BookingManager::meetsDateRangeSearchCriteria(const Motorbike& motorbike, const string& startDate,
+                                                 const string& endDate, const string& city,
+                                                 const string& username, Auth& auth) {
+    // Check if motorbike is listed and available
+    if (!motorbike.getIsListed() || !motorbike.getIsAvailable()) {
+        return false;
+    }
+    
+    // Check location
+    if (motorbike.getLocation() != city) {
+        return false;
+    }
+    
+    // Check if the entire date range is within motorbike's available period
+    if (!motorbike.isAvailableForDateRange(startDate, endDate)) {
+        return false;
+    }
+    
+    // Check for overlapping approved bookings
+    if (hasOverlappingApprovedBookings(motorbike.getMotorbikeId(), startDate, endDate)) {
+        return false;
+    }
+    
+    // Check renter rating requirement
+    double renterRating = auth.getUserRenterRating(username);
+    if (renterRating < motorbike.getMinRenterRating()) {
+        return false;
+    }
+    
+    // Check credit points
+    double totalCost = calculateTotalCost(motorbike, startDate, endDate);
+    double userCPs = auth.getUserCreditPoints(username);
+    if (userCPs < totalCost) {
+        return false;
+    }
+    
+    // Check license requirement
+    int engineSize = motorbike.getEngineSize();
     if (engineSize > 50 && !hasValidLicense(username, auth, engineSize)) {
         return false;
     }
@@ -1019,77 +720,159 @@ bool BookingManager::meetsSearchCriteria(const Motorbike& motorbike, const strin
 }
 
 bool BookingManager::isDateInRange(const string& searchDate, const string& startDate, const string& endDate) {
-    // Simple date comparison (assuming DD/MM/YYYY format)
-    // In a real application, you would use proper date parsing
     return searchDate >= startDate && searchDate <= endDate;
 }
 
 double BookingManager::calculateTotalCost(const Motorbike& motorbike, const string& startDate, const string& endDate) {
-    // Simple calculation - in a real app, you'd parse dates and calculate days
-    // For now, assume 1 day rental
-    (void)startDate; // Suppress unused parameter warning
-    (void)endDate;   // Suppress unused parameter warning
-    return motorbike.pricePerDay;
+    // Simple calculation - in real app, would calculate actual days
+    int days = 1; // Default to 1 day
+    return motorbike.calculateRentalCost(days);
 }
 
 int BookingManager::getEngineSize(const string& size) {
-    // Extract engine size from string like "150cc"
-    string numericPart;
-    for (char c : size) {
-        if (isdigit(c)) {
-            numericPart += c;
+    string sizeStr = size;
+    size_t pos = sizeStr.find("cc");
+    if (pos != string::npos) {
+        sizeStr = sizeStr.substr(0, pos);
+        try {
+            return stoi(sizeStr);
+        } catch (...) {
+            return 0;
         }
     }
-    
-    if (numericPart.empty()) {
-        return 0;
-    }
-    
-    try {
-        return stoi(numericPart);
-    } catch (const std::invalid_argument& e) {
-        return 0;
-    }
+    return 0;
 }
 
 bool BookingManager::hasValidLicense(const string& username, Auth& auth, int engineSize) {
-    // Get user's license expiry date
-    string licenseExpiry = auth.getUserLicenseExpiry(username);
+    if (engineSize <= 50) {
+        return true; // No license required for 50cc and below
+    }
     
-    // Simple check - if expiry is in the future, license is valid
-    // In a real app, you'd parse the date properly
-    (void)engineSize; // Suppress unused parameter warning
-    return licenseExpiry > "2025-12-31"; // Assuming current date is 2025
+    string licenseExpiry = auth.getUserLicenseExpiry(username);
+    // Simple check - in real app, would parse and compare dates
+    return !licenseExpiry.empty() && licenseExpiry != "N/A";
 }
 
 vector<string> BookingManager::getMotorbikeReviews(const string& motorbikeId) {
     vector<string> reviews;
-    
-    // Generate sample reviews based on motorbike ID
-    // In a real application, this would read from a reviews database
-    if (motorbikeId == "MB1") {
-        reviews.push_back("Great electric bike, very smooth ride!");
-        reviews.push_back("Perfect for city commuting, highly recommend.");
-        reviews.push_back("Good battery life, easy to handle.");
-    } else if (motorbikeId == "MB2") {
-        reviews.push_back("Reliable Honda quality, excellent performance.");
-        reviews.push_back("Comfortable seat, good for long rides.");
-        reviews.push_back("Fuel efficient and low maintenance.");
-    } else {
-        reviews.push_back("Good overall experience with this motorbike.");
-        reviews.push_back("Meets expectations for the price.");
-        reviews.push_back("Would recommend to others.");
-    }
-    
+    // In a real app, this would fetch actual reviews
+    reviews.push_back("Great motorbike, very reliable!");
+    reviews.push_back("Good condition, would rent again.");
     return reviews;
 }
 
 double BookingManager::getAverageRating(const string& motorbikeId) {
-    // Get the motorbike's rating from the motorbikes vector
-    for (const Motorbike& motorbike : motorbikes) {
-        if (motorbike.motorbikeId == motorbikeId) {
-            return motorbike.rating;
+    Motorbike* motorbike = getMotorbikeById(motorbikeId);
+    return motorbike ? motorbike->getRating() : 0.0;
+}
+
+bool BookingManager::hasActiveRental(const string& username) {
+    for (const Booking& booking : bookings) {
+        if (booking.getRenterUsername() == username && booking.isApproved()) {
+            return true;
         }
     }
-    return 0.0;
+    return false;
+}
+
+bool BookingManager::hasOverlappingApprovedBookings(const string& motorbikeId, const string& startDate, const string& endDate) {
+    for (const Booking& booking : bookings) {
+        if (booking.getMotorbikeId() == motorbikeId && booking.isApproved()) {
+            // Simple overlap check - in real app, would use proper date comparison
+            if (booking.getStartDate() <= endDate && booking.getEndDate() >= startDate) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void BookingManager::rejectOverlappingRequests(const string& motorbikeId, const string& startDate,
+                                              const string& endDate, const string& approvedBookingId) {
+    for (Booking& booking : bookings) {
+        if (booking.getMotorbikeId() == motorbikeId && booking.getBookingId() != approvedBookingId && booking.isPending()) {
+            // Simple overlap check
+            if (booking.getStartDate() <= endDate && booking.getEndDate() >= startDate) {
+                booking.setStatus("Rejected");
+            }
+        }
+    }
+}
+
+bool BookingManager::completeRental(const string& bookingId, const string& renterUsername) {
+    for (Booking& booking : bookings) {
+        if (booking.getBookingId() == bookingId && booking.getRenterUsername() == renterUsername && booking.isApproved()) {
+            booking.setStatus("Completed");
+            
+            // Make motorbike available again
+            Motorbike* motorbike = getMotorbikeById(booking.getMotorbikeId());
+            if (motorbike) {
+                motorbike->setIsAvailable(true);
+            }
+            
+            saveBookings();
+            saveMotorbikes();
+            
+            cout << "Rental completed successfully!" << endl;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool BookingManager::rateMotorbike(const string& bookingId, const string& renterUsername, double rating, const string& comment) {
+    for (Booking& booking : bookings) {
+        if (booking.getBookingId() == bookingId && booking.getRenterUsername() == renterUsername && booking.isCompleted()) {
+            // Update motorbike rating
+            Motorbike* motorbike = getMotorbikeById(booking.getMotorbikeId());
+            if (motorbike) {
+                double currentRating = motorbike->getRating();
+                double newRating = (currentRating + rating) / 2.0; // Simple average
+                motorbike->setRating(newRating);
+                saveMotorbikes();
+            }
+            
+            cout << "Motorbike rated successfully!" << endl;
+            cout << "Rating: " << rating << "/5.0" << endl;
+            cout << "Comment: " << comment << endl;
+            
+            return true;
+        }
+    }
+    return false;
+}
+
+bool BookingManager::rateRenter(const string& bookingId, const string& ownerUsername, double rating, const string& comment) {
+    for (Booking& booking : bookings) {
+        if (booking.getBookingId() == bookingId && booking.getOwnerUsername() == ownerUsername && booking.isCompleted()) {
+            cout << "Renter rated successfully!" << endl;
+            cout << "Rating: " << rating << "/5.0" << endl;
+            cout << "Comment: " << comment << endl;
+            
+            // In a real app, this would update the renter's rating in the Auth system
+            return true;
+        }
+    }
+    return false;
+}
+
+void BookingManager::createSampleData() {
+    createSampleMotorbikes();
+}
+
+void BookingManager::createSampleMotorbikes() {
+    // Create sample motorbikes
+    vector<Motorbike> sampleMotorbikes = {
+        Motorbike("MB1", "iAmMember1", "VinFast", "Klara S", "Red", "50cc", "59X3-216.86", 25, "HCMC", true, 4.5, "VinFast Klara S - Red 50cc", "01/08/2025", "31/12/2025", 3.5, true),
+        Motorbike("MB2", "iAmMember2", "Honda", "Vision", "Blue", "110cc", "51A-12345", 30, "HCMC", true, 4.2, "Honda Vision - Blue 110cc", "01/08/2025", "30/11/2025", 3, true),
+        Motorbike("MB3", "iAmMember3", "Yamaha", "Exciter", "Black", "150cc", "51B-67890", 45, "HCMC", true, 4.8, "Yamaha Exciter - Black 150cc", "01/08/2025", "31/12/2025", 4, true),
+        Motorbike("MB4", "iAmMember4", "Suzuki", "Raider", "White", "125cc", "51C-11111", 35, "HCMC", true, 4, "Suzuki Raider - White 125cc", "01/08/2025", "30/09/2025", 3.5, true),
+        Motorbike("MB5", "iAmMember5", "Piaggio", "Liberty", "Green", "125cc", "51D-22222", 40, "HCMC", true, 4.3, "Piaggio Liberty - Green 125cc", "01/08/2025", "31/10/2025", 3.8, true)
+    };
+    
+    for (const Motorbike& motorbike : sampleMotorbikes) {
+        motorbikes.push_back(motorbike);
+    }
+    
+    saveMotorbikes();
 }

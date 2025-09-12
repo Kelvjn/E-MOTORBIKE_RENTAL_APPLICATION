@@ -99,42 +99,62 @@ void UI::showMemberMenu() {
     do {
         clearScreen();
         cout << "=== MEMBER MENU ===\n";
-        cout << "1.List my motorbike for rent\n";
-        cout << "2.Browse available motorbikes\n";
-        cout << "3.My bookings\n";
-        cout << "4.Top up credit points\n";
-        cout << "5.My profile\n";
-        cout << "6.Logout\n";
+        cout << "1.Activity Dashboard\n";
+        cout << "2.List my motorbike for rent\n";
+        cout << "3.Browse available motorbikes\n";
+        cout << "4.My bookings\n";
+        cout << "5.Rental requests (for my motorbikes)\n";
+        cout << "6.Complete approved rentals\n";
+        cout << "7.Top up credit points\n";
+        cout << "8.My profile\n";
+        cout << "9.Rate completed rentals\n";
+        cout << "10.Identity verification\n";
+        cout << "11.Logout\n";
         cout << "Enter your choice: ";
         
         cin >> choice;
         
         switch (choice) {
             case 1:
-                showMotorbikeListingMenu();
+                showActivityDashboard();
                 break;
             case 2:
-                showMotorbikeSearchMenu();
+                showMotorbikeListingMenu();
                 break;
             case 3:
+                showMotorbikeSearchMenu();
+                break;
+            case 4:
                 cout << "Viewing my bookings...\n";
                 pauseScreen();
                 break;
-            case 4:
+            case 5:
+                viewRentalRequests();
+                break;
+            case 6:
+                viewApprovedRentals();
+                break;
+            case 7:
                 cout << "Topping up credit points...\n";
                 pauseScreen();
                 break;
-            case 5:
+            case 8:
                 showProfileMenu();
                 break;
-            case 6:
+            case 9:
+                viewCompletedRentals();
+                break;
+            case 10:
+                showVerificationMenu();
+                break;
+            case 11:
                 cout << "Logging out...\n";
                 return;
             default:
                 cout << "Invalid choice.\n";
                 pauseScreen();
         }
-    } while (choice != 6);
+    } while (choice != 11);
 }
 
 /**
@@ -198,7 +218,7 @@ void UI::showProfileMenu() {
         switch (choice) {
             case 1:
                 if (auth && auth->getCurrentUser()) {
-                    auth->displayProfile(auth->getCurrentUser()->username, bookingManager);
+                    auth->displayProfile(auth->getCurrentUser()->getUsername(), bookingManager);
                 }
                 pauseScreen();
                 break;
@@ -243,22 +263,22 @@ void UI::updateProfileInformation() {
     cout << "Note: Username cannot be changed.\n\n";
     
     // Display current values for reference
-    cout << "Current full name: " << currentUser->fullName << "\n";
-    cout << "Current email: " << currentUser->email << "\n";
-    cout << "Current phone number: " << currentUser->phoneNumber << "\n\n";
+    cout << "Current full name: " << currentUser->getFullName() << "\n";
+    cout << "Current email: " << currentUser->getEmail() << "\n";
+    cout << "Current phone number: " << currentUser->getPhoneNumber() << "\n\n";
     
     // Get new values with option to keep current
     cout << "Enter new full name (or press Enter to keep current): ";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     getline(cin, fullName);
     if (fullName.empty()) {
-        fullName = currentUser->fullName;
+        fullName = currentUser->getFullName();
     }
     
     cout << "Enter new email (or press Enter to keep current): ";
     getline(cin, email);
     if (email.empty()) {
-        email = currentUser->email;
+        email = currentUser->getEmail();
     } else if (!auth->validateEmail(email)) {
         cout << "Invalid email format. Profile not updated.\n";
         pauseScreen();
@@ -268,7 +288,7 @@ void UI::updateProfileInformation() {
     cout << "Enter new phone number (or press Enter to keep current): ";
     getline(cin, phoneNumber);
     if (phoneNumber.empty()) {
-        phoneNumber = currentUser->phoneNumber;
+        phoneNumber = currentUser->getPhoneNumber();
     } else if (!auth->validatePhoneNumber(phoneNumber)) {
         cout << "Invalid phone number format. Profile not updated.\n";
         pauseScreen();
@@ -276,12 +296,12 @@ void UI::updateProfileInformation() {
     }
     
     // Update profile in database and memory
-    if (auth->updateProfile(currentUser->username, fullName, email, phoneNumber)) {
+    if (auth->updateProfile(currentUser->getUsername(), fullName, email, phoneNumber)) {
         cout << "\nProfile updated successfully!\n";
         // Update current user object to reflect changes immediately
-        currentUser->fullName = fullName;
-        currentUser->email = email;
-        currentUser->phoneNumber = phoneNumber;
+        currentUser->getFullName() = fullName;
+        currentUser->getEmail() = email;
+        currentUser->getPhoneNumber() = phoneNumber;
     } else {
         cout << "\nFailed to update profile.\n";
     }
@@ -330,10 +350,10 @@ void UI::changeUserPassword() {
     }
     
     // Process password change
-    if (auth->changePassword(auth->getCurrentUser()->username, oldPassword, newPassword)) {
+    if (auth->changePassword(auth->getCurrentUser()->getUsername(), oldPassword, newPassword)) {
         cout << "Password changed successfully!\n";
         // Update current user object to reflect changes immediately
-        auth->getCurrentUser()->password = newPassword;
+        // Password is updated through Auth class, not directly
     } else {
         cout << "Failed to change password. Please check your current password.\n";
     }
@@ -358,7 +378,7 @@ void UI::topUpCreditPoints() {
     
     clearScreen();
     cout << "=== TOP UP CREDIT POINTS ===\n";
-    cout << "Current balance: " << auth->getCurrentUser()->creditPoints << " CPs\n";
+    cout << "Current balance: " << auth->getCurrentUser()->getCreditPoints() << " CPs\n";
     cout << "Rate: $1 = 1 CP\n\n";
     
     // Get top-up amount
@@ -379,18 +399,18 @@ void UI::topUpCreditPoints() {
     cout << endl;
     
     // Verify password before processing
-    if (password != auth->getCurrentUser()->password) {
+    if (password != auth->getCurrentUser()->getPassword()) {
         cout << "Incorrect password. Top-up cancelled.\n";
         pauseScreen();
         return;
     }
     
     // Process top-up
-    if (auth->topUpCreditPoints(auth->getCurrentUser()->username, amount)) {
+    if (auth->topUpCreditPoints(auth->getCurrentUser()->getUsername(), amount)) {
         cout << "Successfully topped up " << amount << " CPs!\n";
-        cout << "New balance: " << (auth->getCurrentUser()->creditPoints + amount) << " CPs\n";
+        cout << "New balance: " << (auth->getCurrentUser()->getCreditPoints() + amount) << " CPs\n";
         // Update current user object to reflect changes immediately
-        auth->getCurrentUser()->creditPoints += amount;
+        // Credit points are updated through Auth class, not directly
     } else {
         cout << "Failed to top up credit points.\n";
     }
@@ -419,7 +439,7 @@ void UI::viewBookingHistory() {
     clearScreen();
     cout << "=== BOOKING HISTORY ===\n";
     
-    string username = auth->getCurrentUser()->username;
+    string username = auth->getCurrentUser()->getUsername();
     
     // Display user's bookings as a renter
     vector<Booking> userBookings = bookingManager->getUserBookings(username);
@@ -431,11 +451,11 @@ void UI::viewBookingHistory() {
         cout << "----------------------\n";
         cout << "Booking ID | Period | Motorbike | Status | Cost\n";
         for (const Booking& booking : userBookings) {
-            cout << booking.bookingId << " | "
-                 << booking.startDate << "-" << booking.endDate << " | "
-                 << booking.brand << " " << booking.model << " | "
-                 << booking.status << " | $"
-                 << booking.totalCost << "\n";
+            cout << booking.getBookingId() << " | "
+                 << booking.getStartDate() << "-" << booking.getEndDate() << " | "
+                 << booking.getBrand() << " " << booking.getModel() << " | "
+                 << booking.getStatus() << " | $"
+                 << booking.getTotalCost() << "\n";
         }
     }
     
@@ -447,18 +467,18 @@ void UI::viewBookingHistory() {
         cout << "----------------------------------\n";
         cout << "Booking ID | Renter | Period | Motorbike | Status\n";
         for (const Booking& request : rentalRequests) {
-            cout << request.bookingId << " | "
-                 << request.renterUsername << " | "
-                 << request.startDate << "-" << request.endDate << " | "
-                 << request.brand << " " << request.model << " | "
-                 << request.status << "\n";
+            cout << request.getBookingId() << " | "
+                 << request.getRenterUsername() << " | "
+                 << request.getStartDate() << "-" << request.getEndDate() << " | "
+                 << request.getBrand() << " " << request.getModel() << " | "
+                 << request.getStatus() << "\n";
         }
     }
     
     // Display comprehensive rating statistics
     cout << "\nRating Statistics:\n";
     cout << "------------------\n";
-    cout << "Your Renter Rating: " << auth->getCurrentUser()->rating << "/5.0\n";
+    cout << "Your Renter Rating: " << auth->getCurrentUser()->getRating() << "/5.0\n";
     cout << "Your Motorbike Rating: " << bookingManager->getUserMotorbikeRating(username) << "/5.0\n";
     
     pauseScreen();
@@ -544,7 +564,7 @@ void UI::listMyMotorbike() {
         return;
     }
     
-    string username = auth->getCurrentUser()->username;
+    string username = auth->getCurrentUser()->getUsername();
     
     // Check if user already has a motorbike listed
     if (bookingManager->isMotorbikeListed(username)) {
@@ -623,7 +643,7 @@ void UI::unlistMyMotorbike() {
         return;
     }
     
-    string username = auth->getCurrentUser()->username;
+    string username = auth->getCurrentUser()->getUsername();
     
     clearScreen();
     cout << "=== UNLIST MY MOTORBIKE ===\n";
@@ -665,7 +685,7 @@ void UI::viewMyMotorbikeListing() {
         return;
     }
     
-    string username = auth->getCurrentUser()->username;
+    string username = auth->getCurrentUser()->getUsername();
     
     clearScreen();
     cout << "=== MY MOTORBIKE LISTING ===\n";
@@ -680,18 +700,18 @@ void UI::viewMyMotorbikeListing() {
     vector<Motorbike> userMotorbikes = bookingManager->getUserMotorbikes(username);
     
     for (const Motorbike& motorbike : userMotorbikes) {
-        if (motorbike.isListed) {
-            cout << "Motorbike ID: " << motorbike.motorbikeId << "\n";
-            cout << "Brand: " << motorbike.brand << " " << motorbike.model << "\n";
-            cout << "Color: " << motorbike.color << "\n";
-            cout << "Size: " << motorbike.size << "\n";
-            cout << "Plate Number: " << motorbike.plateNo << "\n";
-            cout << "Location: " << motorbike.location << "\n";
-            cout << "Daily Rate: " << motorbike.pricePerDay << " CP\n";
-            cout << "Available Period: " << motorbike.availableStartDate << " to " << motorbike.availableEndDate << "\n";
-            cout << "Minimum Renter Rating: " << motorbike.minRenterRating << "\n";
-            cout << "Current Rating: " << motorbike.rating << "/5.0\n";
-            cout << "Status: " << (motorbike.isAvailable ? "Available" : "Not Available") << "\n";
+        if (motorbike.getIsListed()) {
+            cout << "Motorbike ID: " << motorbike.getMotorbikeId() << "\n";
+            cout << "Brand: " << motorbike.getBrand() << " " << motorbike.getModel() << "\n";
+            cout << "Color: " << motorbike.getColor() << "\n";
+            cout << "Size: " << motorbike.getSize() << "\n";
+            cout << "Plate Number: " << motorbike.getPlateNo() << "\n";
+            cout << "Location: " << motorbike.getLocation() << "\n";
+            cout << "Daily Rate: " << motorbike.getPricePerDay() << " CP\n";
+            cout << "Available Period: " << motorbike.getAvailableStartDate() << " to " << motorbike.getAvailableEndDate() << "\n";
+            cout << "Minimum Renter Rating: " << motorbike.getMinRenterRating() << "\n";
+            cout << "Current Rating: " << motorbike.getRating() << "/5.0\n";
+            cout << "Status: " << (motorbike.getIsAvailable() ? "Available" : "Not Available") << "\n";
             break;
         }
     }
@@ -753,17 +773,39 @@ void UI::searchMotorbikes() {
         return;
     }
     
-    string username = auth->getCurrentUser()->username;
+    string username = auth->getCurrentUser()->getUsername();
     
     clearScreen();
     cout << "=== SEARCH AVAILABLE MOTORBIKES ===\n";
     
     // Get search criteria
     string searchDate, city;
+    string startDate, endDate;
+    bool useDateRange = false;
     
-    cout << "Enter search date (DD/MM/YYYY): ";
-    cin.ignore();
-    getline(cin, searchDate);
+    cout << "Search by:\n";
+    cout << "1. Single date\n";
+    cout << "2. Date range\n";
+    cout << "Enter your choice: ";
+    
+    int dateChoice;
+    cin >> dateChoice;
+    
+    if (dateChoice == 2) {
+        useDateRange = true;
+        cout << "Enter start date (DD/MM/YYYY): ";
+        cin.ignore();
+        getline(cin, startDate);
+        
+        cout << "Enter end date (DD/MM/YYYY): ";
+        getline(cin, endDate);
+        
+        searchDate = startDate; // Use start date for compatibility
+    } else {
+        cout << "Enter search date (DD/MM/YYYY): ";
+        cin.ignore();
+        getline(cin, searchDate);
+    }
     
     cout << "Enter city (HCMC or Hanoi): ";
     getline(cin, city);
@@ -776,12 +818,21 @@ void UI::searchMotorbikes() {
     }
     
     // Perform search
-    vector<Motorbike> results = bookingManager->searchMotorbikes(searchDate, city, username, *auth);
+    vector<Motorbike> results;
+    if (useDateRange) {
+        results = bookingManager->searchMotorbikesByDateRange(startDate, endDate, city, username, *auth);
+    } else {
+        results = bookingManager->searchMotorbikes(searchDate, city, username, *auth);
+    }
     
     // Display results
     clearScreen();
     cout << "=== SEARCH RESULTS ===\n";
-    cout << "Search Date: " << searchDate << "\n";
+    if (useDateRange) {
+        cout << "Date Range: " << startDate << " to " << endDate << "\n";
+    } else {
+        cout << "Search Date: " << searchDate << "\n";
+    }
     cout << "City: " << city << "\n";
     cout << "Found " << results.size() << " available motorbike(s)\n\n";
     
@@ -800,13 +851,13 @@ void UI::searchMotorbikes() {
         for (size_t i = 0; i < results.size(); i++) {
             const Motorbike& motorbike = results[i];
             cout << setw(3) << (i + 1) << " | "
-                 << setw(17) << (motorbike.brand + " " + motorbike.model) << " | "
-                 << setw(6) << motorbike.color << " | "
-                 << setw(5) << motorbike.size << " | "
-                 << setw(12) << motorbike.plateNo << " | "
-                 << setw(10) << motorbike.pricePerDay << " CP | "
-                 << setw(6) << fixed << setprecision(1) << motorbike.rating << " | "
-                 << setw(9) << motorbike.minRenterRating << "\n";
+                 << setw(17) << (motorbike.getBrand() + " " + motorbike.getModel()) << " | "
+                 << setw(6) << motorbike.getColor() << " | "
+                 << setw(5) << motorbike.getSize() << " | "
+                 << setw(12) << motorbike.getPlateNo() << " | "
+                 << setw(10) << motorbike.getPricePerDay() << " CP | "
+                 << setw(6) << fixed << setprecision(1) << motorbike.getRating() << " | "
+                 << setw(9) << motorbike.getMinRenterRating() << "\n";
         }
         
         // Option to view details
@@ -816,6 +867,16 @@ void UI::searchMotorbikes() {
         
         if (choice > 0 && choice <= static_cast<int>(results.size())) {
             displayMotorbikeDetails(results[choice - 1]);
+            
+            // Ask if user wants to make a rental request
+            cout << "\nDo you want to make a rental request for this motorbike? (y/n): ";
+            char requestChoice;
+            cin >> requestChoice;
+            
+            if (tolower(requestChoice) == 'y') {
+                makeRentalRequest(results[choice - 1]);
+            }
+            
             // Details view already pauses; avoid a second pause here
             return;
         }
@@ -831,21 +892,21 @@ void UI::searchMotorbikes() {
 void UI::displayMotorbikeDetails(const Motorbike& motorbike) {
     clearScreen();
     cout << "=== MOTORBIKE DETAILS ===\n";
-    cout << "Motorbike ID: " << motorbike.motorbikeId << "\n";
-    cout << "Brand: " << motorbike.brand << "\n";
-    cout << "Model: " << motorbike.model << "\n";
-    cout << "Color: " << motorbike.color << "\n";
-    cout << "Engine Size: " << motorbike.size << "\n";
-    cout << "Plate Number: " << motorbike.plateNo << "\n";
-    cout << "Location: " << motorbike.location << "\n";
-    cout << "Daily Rental Rate: " << motorbike.pricePerDay << " CP\n";
-    cout << "Available Period: " << motorbike.availableStartDate << " to " << motorbike.availableEndDate << "\n";
-    cout << "Minimum Required Renter Rating: " << motorbike.minRenterRating << "\n";
-    cout << "Motorbike Rating: " << motorbike.rating << "/5.0\n";
-    cout << "Description: " << motorbike.description << "\n";
+    cout << "Motorbike ID: " << motorbike.getMotorbikeId() << "\n";
+    cout << "Brand: " << motorbike.getBrand() << "\n";
+    cout << "Model: " << motorbike.getModel() << "\n";
+    cout << "Color: " << motorbike.getColor() << "\n";
+    cout << "Engine Size: " << motorbike.getSize() << "\n";
+    cout << "Plate Number: " << motorbike.getPlateNo() << "\n";
+    cout << "Location: " << motorbike.getLocation() << "\n";
+    cout << "Daily Rental Rate: " << motorbike.getPricePerDay() << " CP\n";
+    cout << "Available Period: " << motorbike.getAvailableStartDate() << " to " << motorbike.getAvailableEndDate() << "\n";
+    cout << "Minimum Required Renter Rating: " << motorbike.getMinRenterRating() << "\n";
+    cout << "Motorbike Rating: " << motorbike.getRating() << "/5.0\n";
+    cout << "Description: " << motorbike.getDescription() << "\n";
     
     // Display reviews
-    displayMotorbikeReviews(motorbike.motorbikeId);
+    displayMotorbikeReviews(motorbike.getMotorbikeId());
     
     pauseScreen();
 }
@@ -912,18 +973,18 @@ void UI::viewAllMemberProfiles() {
     int adminCount = 0;
     
     for (const User& user : allUsers) {
-        cout << setw(15) << left << user.username << " | "
-             << setw(20) << user.fullName << " | "
-             << setw(25) << user.email << " | "
-             << setw(12) << user.phoneNumber << " | "
-             << setw(8) << user.role << " | "
-             << setw(8) << fixed << setprecision(0) << user.creditPoints << " | "
-             << setw(8) << fixed << setprecision(1) << user.rating << " | "
-             << setw(12) << user.licenseExpiry << "\n";
+        cout << setw(15) << left << user.getUsername() << " | "
+             << setw(20) << user.getFullName() << " | "
+             << setw(25) << user.getEmail() << " | "
+             << setw(12) << user.getPhoneNumber() << " | "
+             << setw(8) << user.getRole() << " | "
+             << setw(8) << fixed << setprecision(0) << user.getCreditPoints() << " | "
+             << setw(8) << fixed << setprecision(1) << user.getRating() << " | "
+             << setw(12) << user.getLicenseExpiry() << "\n";
         
-        if (user.role == "member") {
+        if (user.getRole() == "member") {
             memberCount++;
-        } else if (user.role == "admin") {
+        } else if (user.getRole() == "admin") {
             adminCount++;
         }
     }
@@ -977,23 +1038,23 @@ void UI::viewAllMotorbikeListings() {
     double totalValue = 0.0;
     
     for (const Motorbike& motorbike : allMotorbikes) {
-        cout << setw(8) << left << motorbike.motorbikeId << " | "
-             << setw(15) << motorbike.ownerUsername << " | "
-             << setw(20) << (motorbike.brand + " " + motorbike.model) << " | "
-             << setw(8) << motorbike.color << " | "
-             << setw(8) << motorbike.size << " | "
-             << setw(12) << motorbike.plateNo << " | "
-             << setw(8) << motorbike.location << " | "
-             << setw(10) << fixed << setprecision(0) << motorbike.pricePerDay << " CP | "
-             << setw(8) << fixed << setprecision(1) << motorbike.rating << " | "
-             << setw(8) << (motorbike.isListed ? "Yes" : "No") << " | "
-             << setw(8) << (motorbike.isAvailable ? "Yes" : "No") << "\n";
+        cout << setw(8) << left << motorbike.getMotorbikeId() << " | "
+             << setw(15) << motorbike.getOwnerUsername() << " | "
+             << setw(20) << (motorbike.getBrand() + " " + motorbike.getModel()) << " | "
+             << setw(8) << motorbike.getColor() << " | "
+             << setw(8) << motorbike.getSize() << " | "
+             << setw(12) << motorbike.getPlateNo() << " | "
+             << setw(8) << motorbike.getLocation() << " | "
+             << setw(10) << fixed << setprecision(0) << motorbike.getPricePerDay() << " CP | "
+             << setw(8) << fixed << setprecision(1) << motorbike.getRating() << " | "
+             << setw(8) << (motorbike.getIsListed() ? "Yes" : "No") << " | "
+             << setw(8) << (motorbike.getIsAvailable() ? "Yes" : "No") << "\n";
         
-        if (motorbike.isListed) {
+        if (motorbike.getIsListed()) {
             listedCount++;
-            totalValue += motorbike.pricePerDay;
+            totalValue += motorbike.getPricePerDay();
         }
-        if (motorbike.isAvailable) {
+        if (motorbike.getIsAvailable()) {
             availableCount++;
         }
     }
@@ -1034,11 +1095,11 @@ void UI::showSystemStatistics() {
     double averageRating = 0.0;
     
     for (const User& user : allUsers) {
-        if (user.role == "member") {
+        if (user.getRole() == "member") {
             memberCount++;
-            totalCreditPoints += user.creditPoints;
-            averageRating += user.rating;
-        } else if (user.role == "admin") {
+            totalCreditPoints += user.getCreditPoints();
+            averageRating += user.getRating();
+        } else if (user.getRole() == "admin") {
             adminCount++;
         }
     }
@@ -1050,14 +1111,14 @@ void UI::showSystemStatistics() {
     double averageMotorbikeRating = 0.0;
     
     for (const Motorbike& motorbike : allMotorbikes) {
-        if (motorbike.isListed) {
+        if (motorbike.getIsListed()) {
             listedMotorbikes++;
-            totalMotorbikeValue += motorbike.pricePerDay;
+            totalMotorbikeValue += motorbike.getPricePerDay();
         }
-        if (motorbike.isAvailable) {
+        if (motorbike.getIsAvailable()) {
             availableMotorbikes++;
         }
-        averageMotorbikeRating += motorbike.rating;
+        averageMotorbikeRating += motorbike.getRating();
     }
     
     int totalBookings = allBookings.size();
@@ -1068,12 +1129,12 @@ void UI::showSystemStatistics() {
     double totalBookingValue = 0.0;
     
     for (const Booking& booking : allBookings) {
-        if (booking.status == "Pending") pendingBookings++;
-        else if (booking.status == "Approved") approvedBookings++;
-        else if (booking.status == "Completed") completedBookings++;
-        else if (booking.status == "Rejected") rejectedBookings++;
+        if (booking.getStatus() == "Pending") pendingBookings++;
+        else if (booking.getStatus() == "Approved") approvedBookings++;
+        else if (booking.getStatus() == "Completed") completedBookings++;
+        else if (booking.getStatus() == "Rejected") rejectedBookings++;
         
-        totalBookingValue += booking.totalCost;
+        totalBookingValue += booking.getTotalCost();
     }
     
     // Display statistics
@@ -1141,9 +1202,9 @@ void UI::viewGuestMotorbikeListings() {
     cout << string(40, '-') << "\n";
     
     for (const Motorbike& motorbike : guestMotorbikes) {
-        cout << setw(20) << left << (motorbike.brand + " " + motorbike.model) << " | "
-             << setw(8) << motorbike.size << " | "
-             << setw(8) << motorbike.location << "\n";
+        cout << setw(20) << left << (motorbike.getBrand() + " " + motorbike.getModel()) << " | "
+             << setw(8) << motorbike.getSize() << " | "
+             << setw(8) << motorbike.getLocation() << "\n";
     }
     
     cout << "\n=== GUEST ACCESS LIMITATIONS ===\n";
@@ -1191,7 +1252,7 @@ void UI::searchGuestMotorbikes() {
     vector<Motorbike> filteredMotorbikes;
     
     for (const Motorbike& motorbike : allGuestMotorbikes) {
-        if (motorbike.location == city) {
+        if (motorbike.getLocation() == city) {
             filteredMotorbikes.push_back(motorbike);
         }
     }
@@ -1211,9 +1272,9 @@ void UI::searchGuestMotorbikes() {
         cout << string(40, '-') << "\n";
         
         for (const Motorbike& motorbike : filteredMotorbikes) {
-            cout << setw(20) << left << (motorbike.brand + " " + motorbike.model) << " | "
-                 << setw(8) << motorbike.size << " | "
-                 << setw(8) << motorbike.location << "\n";
+            cout << setw(20) << left << (motorbike.getBrand() + " " + motorbike.getModel()) << " | "
+                 << setw(8) << motorbike.getSize() << " | "
+                 << setw(8) << motorbike.getLocation() << "\n";
         }
     }
     
@@ -1228,4 +1289,494 @@ void UI::searchGuestMotorbikes() {
     cout << "Register as a member to access advanced search features.\n";
     
     pauseScreen();
+}
+
+/**
+ * Handles rental request submission for a specific motorbike.
+ */
+void UI::makeRentalRequest(const Motorbike& motorbike) {
+    if (!auth || !auth->getCurrentUser()) {
+        cout << "Error: No user logged in.\n";
+        pauseScreen();
+        return;
+    }
+    
+    if (!bookingManager) {
+        cout << "Error: Booking system not available.\n";
+        pauseScreen();
+        return;
+    }
+    
+    string username = auth->getCurrentUser()->getUsername();
+    
+    clearScreen();
+    cout << "=== MAKE RENTAL REQUEST ===\n";
+    cout << "Motorbike: " << motorbike.getBrand() << " " << motorbike.getModel() << "\n";
+    cout << "Daily Rate: " << motorbike.getPricePerDay() << " CP\n";
+    cout << "Available Period: " << motorbike.getAvailableStartDate() << " to " << motorbike.getAvailableEndDate() << "\n\n";
+    
+    string startDate, endDate;
+    
+    cout << "Enter rental start date (DD/MM/YYYY): ";
+    cin.ignore();
+    getline(cin, startDate);
+    
+    cout << "Enter rental end date (DD/MM/YYYY): ";
+    getline(cin, endDate);
+    
+    // Submit the rental request
+    if (bookingManager->createBooking(username, motorbike.getMotorbikeId(), startDate, endDate, *auth)) {
+        cout << "\nRental request submitted successfully!\n";
+    } else {
+        cout << "\nFailed to submit rental request.\n";
+    }
+    
+    pauseScreen();
+}
+
+/**
+ * Displays rental requests for motorbike owners to approve/reject.
+ */
+void UI::viewRentalRequests() {
+    if (!auth || !auth->getCurrentUser()) {
+        cout << "Error: No user logged in.\n";
+        pauseScreen();
+        return;
+    }
+    
+    if (!bookingManager) {
+        cout << "Error: Booking system not available.\n";
+        pauseScreen();
+        return;
+    }
+    
+    string username = auth->getCurrentUser()->getUsername();
+    
+    clearScreen();
+    cout << "=== RENTAL REQUESTS FOR MY MOTORBIKES ===\n";
+    
+    vector<Booking> rentalRequests = bookingManager->getUserRentalRequests(username);
+    
+    if (rentalRequests.empty()) {
+        cout << "No pending rental requests found.\n";
+        pauseScreen();
+        return;
+    }
+    
+    cout << "Pending Requests:\n";
+    cout << "ID  | Renter        | Motorbike        | Period           | Cost  | Status\n";
+    cout << "----|---------------|------------------|------------------|-------|--------\n";
+    
+    for (size_t i = 0; i < rentalRequests.size(); i++) {
+        const Booking& request = rentalRequests[i];
+        cout << setw(3) << (i + 1) << " | "
+             << setw(13) << request.getRenterUsername() << " | "
+             << setw(16) << (request.getBrand() + " " + request.getModel()) << " | "
+             << setw(16) << (request.getStartDate() + "-" + request.getEndDate()) << " | "
+             << setw(5) << request.getTotalCost() << " CP | "
+             << request.getStatus() << "\n";
+    }
+    
+    cout << "\nEnter request number to approve/reject (0 to go back): ";
+    int choice;
+    cin >> choice;
+    
+    if (choice > 0 && choice <= static_cast<int>(rentalRequests.size())) {
+        manageRentalRequest(rentalRequests[choice - 1]);
+    }
+    
+    pauseScreen();
+}
+
+/**
+ * Handles approval or rejection of a specific rental request.
+ */
+void UI::manageRentalRequest(const Booking& request) {
+    clearScreen();
+    cout << "=== MANAGE RENTAL REQUEST ===\n";
+    cout << "Booking ID: " << request.getBookingId() << "\n";
+    cout << "Renter: " << request.getRenterUsername() << "\n";
+    cout << "Motorbike: " << request.getBrand() << " " << request.getModel() << "\n";
+    cout << "Period: " << request.getStartDate() << " to " << request.getEndDate() << "\n";
+    cout << "Total Cost: " << request.getTotalCost() << " CP\n\n";
+    
+    cout << "1. Approve Request\n";
+    cout << "2. Reject Request\n";
+    cout << "3. Back\n";
+    cout << "Enter your choice: ";
+    
+    int choice;
+    cin >> choice;
+    
+    switch (choice) {
+        case 1:
+            if (bookingManager->approveBooking(request.getBookingId(), request.getOwnerUsername(), *auth)) {
+                cout << "Request approved successfully!\n";
+            } else {
+                cout << "Failed to approve request.\n";
+            }
+            break;
+        case 2:
+            if (bookingManager->rejectBooking(request.getBookingId(), request.getOwnerUsername())) {
+                cout << "Request rejected.\n";
+            } else {
+                cout << "Failed to reject request.\n";
+            }
+            break;
+        case 3:
+            return;
+        default:
+            cout << "Invalid choice.\n";
+    }
+    
+    pauseScreen();
+}
+
+/**
+ * Displays completed rentals for rating.
+ */
+void UI::viewCompletedRentals() {
+    if (!auth || !auth->getCurrentUser()) {
+        cout << "Error: No user logged in.\n";
+        pauseScreen();
+        return;
+    }
+    
+    if (!bookingManager) {
+        cout << "Error: Booking system not available.\n";
+        pauseScreen();
+        return;
+    }
+    
+    string username = auth->getCurrentUser()->getUsername();
+    
+    clearScreen();
+    cout << "=== COMPLETED RENTALS ===\n";
+    
+    vector<Booking> userBookings = bookingManager->getUserBookings(username);
+    vector<Booking> completedBookings;
+    
+    for (const Booking& booking : userBookings) {
+        if (booking.getStatus() == "Completed") {
+            completedBookings.push_back(booking);
+        }
+    }
+    
+    if (completedBookings.empty()) {
+        cout << "No completed rentals found.\n";
+        pauseScreen();
+        return;
+    }
+    
+    cout << "Completed Rentals:\n";
+    cout << "ID  | Motorbike        | Period           | Cost  | Status\n";
+    cout << "----|------------------|------------------|-------|--------\n";
+    
+    for (size_t i = 0; i < completedBookings.size(); i++) {
+        const Booking& booking = completedBookings[i];
+        cout << setw(3) << (i + 1) << " | "
+             << setw(16) << (booking.getBrand() + " " + booking.getModel()) << " | "
+             << setw(16) << (booking.getStartDate() + "-" + booking.getEndDate()) << " | "
+             << setw(5) << booking.getTotalCost() << " CP | "
+             << booking.getStatus() << "\n";
+    }
+    
+    cout << "\nEnter rental number to rate (0 to go back): ";
+    int choice;
+    cin >> choice;
+    
+    if (choice > 0 && choice <= static_cast<int>(completedBookings.size())) {
+        rateMotorbike(completedBookings[choice - 1]);
+    }
+    
+    pauseScreen();
+}
+
+/**
+ * Handles motorbike rating by the renter.
+ */
+void UI::rateMotorbike(const Booking& booking) {
+    clearScreen();
+    cout << "=== RATE MOTORBIKE ===\n";
+    cout << "Booking ID: " << booking.getBookingId() << "\n";
+    cout << "Motorbike: " << booking.getBrand() << " " << booking.getModel() << "\n";
+    cout << "Period: " << booking.getStartDate() << " to " << booking.getEndDate() << "\n\n";
+    
+    double rating;
+    string comment;
+    
+    cout << "Rate the motorbike (1.0 - 5.0): ";
+    cin >> rating;
+    
+    cout << "Enter your comment: ";
+    cin.ignore();
+    getline(cin, comment);
+    
+    if (bookingManager->rateMotorbike(booking.getBookingId(), booking.getRenterUsername(), rating, comment)) {
+        cout << "Thank you for rating the motorbike!\n";
+    } else {
+        cout << "Failed to submit rating.\n";
+    }
+    
+    pauseScreen();
+}
+
+/**
+ * Displays approved rentals that can be completed.
+ */
+void UI::viewApprovedRentals() {
+    if (!auth || !auth->getCurrentUser()) {
+        cout << "Error: No user logged in.\n";
+        pauseScreen();
+        return;
+    }
+    
+    if (!bookingManager) {
+        cout << "Error: Booking system not available.\n";
+        pauseScreen();
+        return;
+    }
+    
+    string username = auth->getCurrentUser()->getUsername();
+    
+    clearScreen();
+    cout << "=== APPROVED RENTALS ===\n";
+    
+    vector<Booking> userBookings = bookingManager->getUserBookings(username);
+    vector<Booking> approvedBookings;
+    
+    for (const Booking& booking : userBookings) {
+        if (booking.getStatus() == "Approved") {
+            approvedBookings.push_back(booking);
+        }
+    }
+    
+    if (approvedBookings.empty()) {
+        cout << "No approved rentals found.\n";
+        pauseScreen();
+        return;
+    }
+    
+    cout << "Approved Rentals:\n";
+    cout << "ID  | Motorbike        | Period           | Cost  | Status\n";
+    cout << "----|------------------|------------------|-------|--------\n";
+    
+    for (size_t i = 0; i < approvedBookings.size(); i++) {
+        const Booking& booking = approvedBookings[i];
+        cout << setw(3) << (i + 1) << " | "
+             << setw(16) << (booking.getBrand() + " " + booking.getModel()) << " | "
+             << setw(16) << (booking.getStartDate() + "-" + booking.getEndDate()) << " | "
+             << setw(5) << booking.getTotalCost() << " CP | "
+             << booking.getStatus() << "\n";
+    }
+    
+    cout << "\nEnter rental number to complete (0 to go back): ";
+    int choice;
+    cin >> choice;
+    
+    if (choice > 0 && choice <= static_cast<int>(approvedBookings.size())) {
+        completeRental(approvedBookings[choice - 1]);
+    }
+    
+    pauseScreen();
+}
+
+/**
+ * Handles rental completion.
+ */
+void UI::completeRental(const Booking& booking) {
+    clearScreen();
+    cout << "=== COMPLETE RENTAL ===\n";
+    cout << "Booking ID: " << booking.getBookingId() << "\n";
+    cout << "Motorbike: " << booking.getBrand() << " " << booking.getModel() << "\n";
+    cout << "Period: " << booking.getStartDate() << " to " << booking.getEndDate() << "\n";
+    cout << "Total Cost: " << booking.getTotalCost() << " CP\n\n";
+    
+    cout << "Are you sure you want to complete this rental? (y/n): ";
+    char confirm;
+    cin >> confirm;
+    
+    if (tolower(confirm) == 'y') {
+        if (bookingManager->completeRental(booking.getBookingId(), booking.getRenterUsername())) {
+            cout << "Rental completed successfully!\n";
+            cout << "You can now rate the motorbike in the 'Rate completed rentals' menu.\n";
+        } else {
+            cout << "Failed to complete rental.\n";
+        }
+    } else {
+        cout << "Rental completion cancelled.\n";
+    }
+    
+    pauseScreen();
+}
+
+/**
+ * Displays a personalized activity dashboard for members.
+ * Shows account overview, active rentals, and rental requests.
+ */
+void UI::showActivityDashboard() {
+    if (!auth || !auth->getCurrentUser()) {
+        cout << "Error: No user logged in.\n";
+        pauseScreen();
+        return;
+    }
+    
+    if (!bookingManager) {
+        cout << "Error: Booking system not available.\n";
+        pauseScreen();
+        return;
+    }
+    
+    string username = auth->getCurrentUser()->getUsername();
+    
+    clearScreen();
+    cout << "╔══════════════════════════════════════════════════════════════╗\n";
+    cout << "║                    ACTIVITY DASHBOARD                       ║\n";
+    cout << "╚══════════════════════════════════════════════════════════════╝\n\n";
+    
+    // Account Overview Section
+    cout << "┌─ ACCOUNT OVERVIEW ──────────────────────────────────────────┐\n";
+    cout << "│ Username: " << setw(45) << left << username << "│\n";
+    
+    // Get user data
+    double creditPoints = auth->getUserCreditPoints(username);
+    double rating = auth->getUserRenterRating(username);
+    bool isVerified = auth->isUserVerified(username);
+    
+    cout << "│ Credit Points: " << setw(40) << left << (to_string(creditPoints) + " CP") << "│\n";
+    cout << "│ Renter Rating: " << setw(40) << left << (to_string(rating) + "/5.0") << "│\n";
+    cout << "│ Verification: " << setw(40) << left << (isVerified ? "VERIFIED ✓" : "NOT VERIFIED ✗") << "│\n";
+    cout << "└─────────────────────────────────────────────────────────────┘\n\n";
+    
+    // Active Rentals Section (as renter)
+    cout << "┌─ ACTIVE RENTALS (AS RENTER) ────────────────────────────────┐\n";
+    vector<Booking> userBookings = bookingManager->getUserBookings(username);
+    vector<Booking> activeRentals;
+    
+    for (const Booking& booking : userBookings) {
+        if (booking.getStatus() == "Approved") {
+            activeRentals.push_back(booking);
+        }
+    }
+    
+    if (activeRentals.empty()) {
+        cout << "│ No active rentals found.                                │\n";
+    } else {
+        cout << "│ " << setw(50) << left << "Motorbike" << "│ " << setw(15) << "Period" << "│\n";
+        cout << "├─────────────────────────────────────────────────────────┼─────────────────┤\n";
+        for (const Booking& rental : activeRentals) {
+            string motorbikeInfo = rental.getBrand() + " " + rental.getModel();
+            string period = rental.getStartDate() + "-" + rental.getEndDate();
+            cout << "│ " << setw(50) << left << motorbikeInfo << "│ " << setw(15) << period << "│\n";
+        }
+    }
+    cout << "└─────────────────────────────────────────────────────────────┴─────────────────┘\n\n";
+    
+    // Rental Requests Section (as owner)
+    cout << "┌─ RENTAL REQUESTS (AS OWNER) ────────────────────────────────┐\n";
+    vector<Booking> rentalRequests = bookingManager->getUserRentalRequests(username);
+    vector<Booking> pendingRequests;
+    
+    for (const Booking& request : rentalRequests) {
+        if (request.getStatus() == "Pending") {
+            pendingRequests.push_back(request);
+        }
+    }
+    
+    if (pendingRequests.empty()) {
+        cout << "│ No pending rental requests found.                       │\n";
+    } else {
+        cout << "│ " << setw(20) << left << "Renter" << "│ " << setw(25) << "Motorbike" << "│ " << setw(15) << "Status" << "│\n";
+        cout << "├────────────────────┼─────────────────────────┼─────────────────┤\n";
+        for (const Booking& request : pendingRequests) {
+            string motorbikeInfo = request.getBrand() + " " + request.getModel();
+            cout << "│ " << setw(20) << left << request.getRenterUsername() << "│ " 
+                 << setw(25) << motorbikeInfo << "│ " << setw(15) << request.getStatus() << "│\n";
+        }
+    }
+    cout << "└────────────────────┴─────────────────────────┴─────────────────┘\n\n";
+    
+    // Quick Actions Section
+    cout << "┌─ QUICK ACTIONS ─────────────────────────────────────────────┐\n";
+    cout << "│ 1. Browse Available Motorbikes                             │\n";
+    cout << "│ 2. View Rental Requests                                    │\n";
+    cout << "│ 3. Complete Active Rentals                                 │\n";
+    cout << "│ 4. Rate Completed Rentals                                  │\n";
+    cout << "│ 5. Back to Main Menu                                       │\n";
+    cout << "└─────────────────────────────────────────────────────────────┘\n";
+    cout << "Enter your choice: ";
+    
+    int choice;
+    cin >> choice;
+    
+    switch (choice) {
+        case 1:
+            showMotorbikeSearchMenu();
+            break;
+        case 2:
+            viewRentalRequests();
+            break;
+        case 3:
+            viewApprovedRentals();
+            break;
+        case 4:
+            viewCompletedRentals();
+            break;
+        case 5:
+            return;
+        default:
+            cout << "Invalid choice.\n";
+            pauseScreen();
+    }
+}
+
+/**
+ * Displays the identity verification menu.
+ */
+void UI::showVerificationMenu() {
+    if (!auth || !auth->getCurrentUser()) {
+        cout << "Error: No user logged in.\n";
+        pauseScreen();
+        return;
+    }
+    
+    string username = auth->getCurrentUser()->getUsername();
+    
+    clearScreen();
+    cout << "╔══════════════════════════════════════════════════════════════╗\n";
+    cout << "║                 IDENTITY VERIFICATION                       ║\n";
+    cout << "╚══════════════════════════════════════════════════════════════╝\n\n";
+    
+    // Display current verification status
+    auth->displayVerificationStatus(username);
+    
+    cout << "\n┌─ VERIFICATION OPTIONS ──────────────────────────────────────┐\n";
+    cout << "│ 1. Verify My Identity                                      │\n";
+    cout << "│ 2. View Verification Status                                │\n";
+    cout << "│ 3. Back to Main Menu                                       │\n";
+    cout << "└─────────────────────────────────────────────────────────────┘\n";
+    cout << "Enter your choice: ";
+    
+    int choice;
+    cin >> choice;
+    
+    switch (choice) {
+        case 1:
+            if (auth->verifyIdentity(username)) {
+                cout << "\nIdentity verification completed successfully!\n";
+            } else {
+                cout << "\nIdentity verification failed. Please try again.\n";
+            }
+            pauseScreen();
+            break;
+        case 2:
+            auth->displayVerificationStatus(username);
+            pauseScreen();
+            break;
+        case 3:
+            return;
+        default:
+            cout << "Invalid choice.\n";
+            pauseScreen();
+    }
 }

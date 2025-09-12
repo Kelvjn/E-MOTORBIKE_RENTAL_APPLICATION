@@ -1,5 +1,7 @@
 # E-MOTORBIKE RENTAL APPLICATION
 
+run the application: .\motorbike_rental.exe
+
 A C++ console-based electric motorbike rental application that allows users to register as members, list their electric motorbike for rent, browse and book other members' motorbikes, top up credit points (CPs), and provide ratings after each completed ride.
 
 ## Features
@@ -65,7 +67,7 @@ make run
 
 **Option B: Direct Execution**
 ```bash
-./motorbike_rental_final
+./motorbike_rental
 ```
 
 ### Application Startup
@@ -119,13 +121,13 @@ The system includes sample member accounts for testing:
 
 #### **Manual Compilation (if make fails)**
 ```bash
-g++ -std=c++11 -Wall -Wextra main.cpp ui.cpp auth.cpp booking.cpp -o motorbike_rental_final
+g++ -std=c++11 -Wall -Wextra main.cpp ui.cpp auth.cpp booking.cpp -o motorbike_rental
 ```
 
 ### File Structure After Compilation
 ```
 E-MOTORBIKE_RENTAL_APPLICATION/
-├── motorbike_rental_final.exe # Executable file
+├── motorbike_rental.exe # Executable file
 ├── main.o                     # Compiled main.cpp
 ├── ui.o                       # Compiled ui.cpp
 ├── auth.o                     # Compiled auth.cpp

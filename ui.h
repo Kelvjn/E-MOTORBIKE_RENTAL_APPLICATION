@@ -59,6 +59,19 @@ public:
     void displayMotorbikeDetails(const struct Motorbike& motorbike); // Display motorbike details
     void displayMotorbikeReviews(const std::string& motorbikeId); // Display motorbike reviews
     
+    // Rental request and management functions
+    void makeRentalRequest(const struct Motorbike& motorbike); // Submit rental request
+    void viewRentalRequests(); // View rental requests for owner
+    void manageRentalRequest(const struct Booking& request); // Approve/reject requests
+    void viewCompletedRentals(); // View completed rentals for rating
+    void rateMotorbike(const struct Booking& booking); // Rate motorbike after rental
+    void viewApprovedRentals(); // View approved rentals for completion
+    void completeRental(const struct Booking& booking); // Complete rental
+    
+    // Dashboard and advanced features
+    void showActivityDashboard(); // Display personalized activity dashboard
+    void showVerificationMenu(); // Display identity verification menu
+    
     // Guest functions
     void viewGuestMotorbikeListings(); // Display limited motorbike listings for guests
     void searchGuestMotorbikes(); // Search motorbikes with limited information for guests
