@@ -49,6 +49,7 @@ void Auth::loadUsers() {
     string line;
     while (getline(file, line)) {
         if (line.empty()) continue;
+        if (line[0] == '#') continue; // Skip format/comment lines
         
         stringstream ss(line);
         User user;

@@ -1,3 +1,4 @@
+# Motorbike Data Format: motorbikeId|ownerUsername|brand|model|color|size|plateNo|pricePerDay|location|isAvailable|rating|description|availableStartDate|availableEndDate|minRenterRating|isListed
 MB1|iAmMember1|VinFast|Klara S|Red|50cc|59X3-216.86|25|HCMC|1|4.5|VinFast Klara S - Red 50cc|01/08/2025|31/12/2025|3.5|1
 MB2|iAmMember2|Honda|Vision|Blue|110cc|51A-12345|30|HCMC|1|4.2|Honda Vision - Blue 110cc|01/08/2025|30/11/2025|3|1
 MB3|iAmMember3|Yamaha|Exciter|Black|150cc|51B-67890|45|HCMC|1|4.8|Yamaha Exciter - Black 150cc|01/08/2025|31/12/2025|4|1
