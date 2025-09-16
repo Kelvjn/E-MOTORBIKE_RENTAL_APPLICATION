@@ -8,50 +8,6 @@
 
 using namespace std;
 
-// ============================================================================
-// VEHICLE CLASS IMPLEMENTATION
-// ============================================================================
-
-Vehicle::Vehicle(const string& brand, const string& model, const string& color,
-                 const string& size, const string& plateNo, double pricePerDay,
-                 const string& location, bool isAvailable, double rating,
-                 const string& description)
-    : brand(brand), model(model), color(color), size(size), plateNo(plateNo),
-      pricePerDay(pricePerDay), location(location), isAvailable(isAvailable),
-      rating(rating), description(description) {
-}
-
-void Vehicle::setPricePerDay(double pricePerDay) {
-    if (pricePerDay >= 0) {
-        this->pricePerDay = pricePerDay;
-    }
-}
-
-void Vehicle::setRating(double rating) {
-    if (rating >= 0 && rating <= 5) {
-        this->rating = rating;
-    }
-}
-
-int Vehicle::getEngineSize() const {
-    // Extract engine size from size string (e.g., "150cc" -> 150)
-    string sizeStr = size;
-    size_t pos = sizeStr.find("cc");
-    if (pos != string::npos) {
-        sizeStr = sizeStr.substr(0, pos);
-        try {
-            return stoi(sizeStr);
-        } catch (...) {
-            return 0;
-        }
-    }
-    return 0;
-}
-
-bool Vehicle::isElectric() const {
-    // Simple check - in real app, would have more sophisticated logic
-    return brand == "VinFast" || model.find("Electric") != string::npos;
-}
 
 // ============================================================================
 // MOTORBIKE CLASS IMPLEMENTATION
@@ -64,9 +20,11 @@ Motorbike::Motorbike(const string& motorbikeId, const string& ownerUsername,
                      const string& description, const string& availableStartDate,
                      const string& availableEndDate, double minRenterRating,
                      bool isListed)
-    : Vehicle(brand, model, color, size, plateNo, pricePerDay, location, isAvailable, rating, description),
-      motorbikeId(motorbikeId), ownerUsername(ownerUsername), availableStartDate(availableStartDate),
-      availableEndDate(availableEndDate), minRenterRating(minRenterRating), isListed(isListed) {
+    : motorbikeId(motorbikeId), ownerUsername(ownerUsername), brand(brand), model(model),
+      color(color), size(size), plateNo(plateNo), pricePerDay(pricePerDay),
+      location(location), isAvailable(isAvailable), rating(rating), description(description),
+      availableStartDate(availableStartDate), availableEndDate(availableEndDate),
+      minRenterRating(minRenterRating), isListed(isListed) {
 }
 
 void Motorbike::displayInfo() const {
@@ -95,6 +53,26 @@ void Motorbike::setMinRenterRating(double rating) {
     if (rating >= 0 && rating <= 5) {
         this->minRenterRating = rating;
     }
+}
+
+int Motorbike::getEngineSize() const {
+    // Extract engine size from size string (e.g., "150cc" -> 150)
+    string sizeStr = size;
+    size_t pos = sizeStr.find("cc");
+    if (pos != string::npos) {
+        sizeStr = sizeStr.substr(0, pos);
+        try {
+            return stoi(sizeStr);
+        } catch (...) {
+            return 0;
+        }
+    }
+    return 0;
+}
+
+bool Motorbike::isElectric() const {
+    // For this project, all motorbikes are considered electric
+    return true;
 }
 
 bool Motorbike::isAvailableForDate(const string& date) const {

@@ -16,6 +16,8 @@
 #include <iostream>
 #include <string>
 
+using namespace std;
+
 // Forward declarations
 class Auth;
 class BookingManager;

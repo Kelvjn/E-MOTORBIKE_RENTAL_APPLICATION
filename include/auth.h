@@ -5,52 +5,54 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 // Forward declaration
 class BookingManager;
 
 // Simple User class
 class User {
 private:
-    std::string username;
-    std::string password;
-    std::string role;
-    std::string fullName;
-    std::string email;
-    std::string phoneNumber;
-    std::string idType; // "Citizen ID" or "Passport"
-    std::string idNumber;
-    std::string licenseNumber; // Optional
-    std::string licenseExpiry; // Optional
+    string username;
+    string password;
+    string role;
+    string fullName;
+    string email;
+    string phoneNumber;
+    string idType; // "Citizen ID" or "Passport"
+    string idNumber;
+    string licenseNumber; // Optional
+    string licenseExpiry; // Optional
     double creditPoints;
     double rating;
 
 public:
     // Constructor
-    User(const std::string& username = "", const std::string& password = "", 
-         const std::string& role = "member", const std::string& fullName = "",
-         const std::string& email = "", const std::string& phone = "",
-         const std::string& idType = "", const std::string& idNumber = "",
-         const std::string& licenseNumber = "", const std::string& licenseExpiry = "",
+    User(const string& username = "", const string& password = "", 
+         const string& role = "member", const string& fullName = "",
+         const string& email = "", const string& phone = "",
+         const string& idType = "", const string& idNumber = "",
+         const string& licenseNumber = "", const string& licenseExpiry = "",
          double creditPoints = 20.0, double rating = 3.0);
 
     // Getters
-    std::string getUsername() const { return username; }
-    std::string getPassword() const { return password; }
-    std::string getRole() const { return role; }
-    std::string getFullName() const { return fullName; }
-    std::string getEmail() const { return email; }
-    std::string getPhoneNumber() const { return phoneNumber; }
-    std::string getIdType() const { return idType; }
-    std::string getIdNumber() const { return idNumber; }
-    std::string getLicenseNumber() const { return licenseNumber; }
-    std::string getLicenseExpiry() const { return licenseExpiry; }
+    string getUsername() const { return username; }
+    string getPassword() const { return password; }
+    string getRole() const { return role; }
+    string getFullName() const { return fullName; }
+    string getEmail() const { return email; }
+    string getPhoneNumber() const { return phoneNumber; }
+    string getIdType() const { return idType; }
+    string getIdNumber() const { return idNumber; }
+    string getLicenseNumber() const { return licenseNumber; }
+    string getLicenseExpiry() const { return licenseExpiry; }
     double getCreditPoints() const { return creditPoints; }
     double getRating() const { return rating; }
 
     // Setters
-    void setFullName(const std::string& name) { fullName = name; }
-    void setEmail(const std::string& e) { email = e; }
-    void setPhoneNumber(const std::string& phone) { phoneNumber = phone; }
+    void setFullName(const string& name) { fullName = name; }
+    void setEmail(const string& e) { email = e; }
+    void setPhoneNumber(const string& phone) { phoneNumber = phone; }
     void setCreditPoints(double cp) { creditPoints = cp; }
     
     // License validation
@@ -60,7 +62,7 @@ public:
 // Simple Auth class
 class Auth {
 private:
-    std::vector<User> users;
+    vector<User> users;
     User* currentUser;
 
 public:
@@ -78,29 +80,29 @@ public:
     User* getCurrentUser();
     
     // User management
-    std::string hidePassword();
-    bool validateEmail(const std::string& email);
-    bool validatePhoneNumber(const std::string& phone);
-    bool validatePassword(const std::string& password);
-    bool updateProfile(const std::string& username, const std::string& fullName, 
-                      const std::string& email, const std::string& phoneNumber);
-    bool changePassword(const std::string& username, const std::string& oldPassword, 
-                       const std::string& newPassword);
-    bool topUpCreditPoints(const std::string& username, double amount);
-    bool deductCreditPoints(const std::string& username, double amount);
-    void displayProfile(const std::string& username, BookingManager* bookingManager = nullptr);
+    string hidePassword();
+    bool validateEmail(const string& email);
+    bool validatePhoneNumber(const string& phone);
+    bool validatePassword(const string& password);
+    bool updateProfile(const string& username, const string& fullName, 
+                      const string& email, const string& phoneNumber);
+    bool changePassword(const string& username, const string& oldPassword, 
+                       const string& newPassword);
+    bool topUpCreditPoints(const string& username, double amount);
+    bool deductCreditPoints(const string& username, double amount);
+    void displayProfile(const string& username, BookingManager* bookingManager = nullptr);
     
     // User data access methods
-    double getUserRenterRating(const std::string& username);
-    double getUserCreditPoints(const std::string& username);
-    std::string getUserLicenseExpiry(const std::string& username);
+    double getUserRenterRating(const string& username);
+    double getUserCreditPoints(const string& username);
+    string getUserLicenseExpiry(const string& username);
     
     // Admin methods
-    std::vector<User> getAllUsers();
+    vector<User> getAllUsers();
     
     // Identity verification
-    bool verifyIdentity(const std::string& username);
-    void displayVerificationStatus(const std::string& username);
+    bool verifyIdentity(const string& username);
+    void displayVerificationStatus(const string& username);
 };
 
 #endif

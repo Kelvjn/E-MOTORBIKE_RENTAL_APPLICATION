@@ -17,6 +17,8 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 // Forward declarations
 class Auth;
 class BookingManager;

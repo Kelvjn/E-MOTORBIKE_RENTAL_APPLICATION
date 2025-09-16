@@ -49,7 +49,7 @@ void UICore::showWelcomeScreen() {
     cout << "Semester 2 2025\n";
     cout << "E-MOTORBIKE RENTAL APPLICATION\n";
     cout << "Instructor: Dr Ling Huo Chong, Dr Ushik Shrestha, Dr Tri Huynh\n";
-    cout << "Group: Group 5.\n";
+    cout << "Group: 5\n";
     cout << "S3992133, Lu Duc Thinh\n";
     cout << "S3928379, Jang Soohyuk\n";
     cout << "S3975144, Pham Tuan Hai\n";
