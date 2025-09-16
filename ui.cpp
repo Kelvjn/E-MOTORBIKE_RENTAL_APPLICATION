@@ -105,11 +105,10 @@ void UI::showMemberMenu() {
         cout << "4.My bookings\n";
         cout << "5.Rental requests (for my motorbikes)\n";
         cout << "6.Complete approved rentals\n";
-        cout << "7.Top up credit points\n";
-        cout << "8.My profile\n";
-        cout << "9.Rate completed rentals\n";
-        cout << "10.Identity verification\n";
-        cout << "11.Logout\n";
+        cout << "7.My profile\n";
+        cout << "8.Rate completed rentals\n";
+        cout << "9.Identity verification\n";
+        cout << "10.Logout\n";
         cout << "Enter your choice: ";
         
         cin >> choice;
@@ -135,26 +134,22 @@ void UI::showMemberMenu() {
                 viewApprovedRentals();
                 break;
             case 7:
-                cout << "Topping up credit points...\n";
-                pauseScreen();
-                break;
-            case 8:
                 showProfileMenu();
                 break;
-            case 9:
+            case 8:
                 viewCompletedRentals();
                 break;
-            case 10:
+            case 9:
                 showVerificationMenu();
                 break;
-            case 11:
+            case 10:
                 cout << "Logging out...\n";
                 return;
             default:
                 cout << "Invalid choice.\n";
                 pauseScreen();
         }
-    } while (choice != 11);
+    } while (choice != 10);
 }
 
 /**
@@ -1428,8 +1423,7 @@ void UI::manageRentalRequest(const Booking& request) {
         default:
             cout << "Invalid choice.\n";
     }
-    
-    pauseScreen();
+    // Do not pause here; the caller (viewRentalRequests) will pause once
 }
 
 /**
@@ -1630,85 +1624,83 @@ void UI::showActivityDashboard() {
     string username = auth->getCurrentUser()->getUsername();
     
     clearScreen();
-    cout << "╔══════════════════════════════════════════════════════════════╗\n";
-    cout << "║                    ACTIVITY DASHBOARD                       ║\n";
-    cout << "╚══════════════════════════════════════════════════════════════╝\n\n";
+    cout << "ACTIVITY DASHBOARD\n\n";
     
-    // Account Overview Section
-    cout << "┌─ ACCOUNT OVERVIEW ──────────────────────────────────────────┐\n";
-    cout << "│ Username: " << setw(45) << left << username << "│\n";
+    // Account Overview Section (plain ASCII)
+    cout << "Account Overview: " << username << "\n";
+    cout << string(32, '-') << "\n";
     
     // Get user data
     double creditPoints = auth->getUserCreditPoints(username);
-    double rating = auth->getUserRenterRating(username);
-    bool isVerified = auth->isUserVerified(username);
+    double renterRating = auth->getUserRenterRating(username);
+    double motorbikeRating = bookingManager->getUserMotorbikeRating(username);
     
-    cout << "│ Credit Points: " << setw(40) << left << (to_string(creditPoints) + " CP") << "│\n";
-    cout << "│ Renter Rating: " << setw(40) << left << (to_string(rating) + "/5.0") << "│\n";
-    cout << "│ Verification: " << setw(40) << left << (isVerified ? "VERIFIED ✓" : "NOT VERIFIED ✗") << "│\n";
-    cout << "└─────────────────────────────────────────────────────────────┘\n\n";
+    cout << "Current Credit Points: " << fixed << setprecision(0) << creditPoints << "\n";
+    cout.unsetf(ios::floatfield);
+    cout << "Renter rating: " << fixed << setprecision(1) << renterRating
+         << "  |  Motorbike rating: " << fixed << setprecision(1) << motorbikeRating << "\n\n";
     
-    // Active Rentals Section (as renter)
-    cout << "┌─ ACTIVE RENTALS (AS RENTER) ────────────────────────────────┐\n";
+    // Active rental bookings (as renter)
+    cout << "Your active rental booking\n";
+    cout << string(30, '-') << "\n";
     vector<Booking> userBookings = bookingManager->getUserBookings(username);
-    vector<Booking> activeRentals;
+    bool hasActive = false;
+    cout << left
+         << setw(18) << "Rent Period" << " | "
+         << setw(6)  << "Brand" << " | "
+         << setw(10) << "Model" << " | "
+         << setw(5)  << "Color" << " | "
+         << setw(5)  << "Size"  << " | "
+         << setw(9)  << "Plate No." << " | "
+         << setw(10) << "Owner" << " | "
+         << "Status" << "\n";
     
-    for (const Booking& booking : userBookings) {
-        if (booking.getStatus() == "Approved") {
-            activeRentals.push_back(booking);
+    for (const Booking& b : userBookings) {
+        if (b.getStatus() == "Approved") {
+            hasActive = true;
+            cout << setw(18) << (b.getStartDate() + "-" + b.getEndDate()) << " | "
+                 << setw(6)  << b.getBrand() << " | "
+                 << setw(10) << b.getModel() << " | "
+                 << setw(5)  << b.getColor() << " | "
+                 << setw(5)  << b.getSize() << " | "
+                 << setw(9)  << b.getPlateNo() << " | "
+                 << setw(10) << b.getOwnerUsername() << " | "
+                 << b.getStatus() << "\n";
         }
     }
-    
-    if (activeRentals.empty()) {
-        cout << "│ No active rentals found.                                │\n";
-    } else {
-        cout << "│ " << setw(50) << left << "Motorbike" << "│ " << setw(15) << "Period" << "│\n";
-        cout << "├─────────────────────────────────────────────────────────┼─────────────────┤\n";
-        for (const Booking& rental : activeRentals) {
-            string motorbikeInfo = rental.getBrand() + " " + rental.getModel();
-            string period = rental.getStartDate() + "-" + rental.getEndDate();
-            cout << "│ " << setw(50) << left << motorbikeInfo << "│ " << setw(15) << period << "│\n";
-        }
+    if (!hasActive) {
+        cout << "No active rentals found." << "\n";
     }
-    cout << "└─────────────────────────────────────────────────────────────┴─────────────────┘\n\n";
+    cout << "\n";
     
-    // Rental Requests Section (as owner)
-    cout << "┌─ RENTAL REQUESTS (AS OWNER) ────────────────────────────────┐\n";
+    // Active rental requests (as owner)
+    cout << "Your active rental requests\n";
+    cout << string(30, '-') << "\n";
     vector<Booking> rentalRequests = bookingManager->getUserRentalRequests(username);
-    vector<Booking> pendingRequests;
-    
-    for (const Booking& request : rentalRequests) {
-        if (request.getStatus() == "Pending") {
-            pendingRequests.push_back(request);
+    bool hasRequests = false;
+    cout << left
+         << setw(18) << "Rent period" << " | "
+         << setw(13) << "Renter rating" << " | "
+         << "Renter" << "\n";
+    for (const Booking& req : rentalRequests) {
+        if (req.getStatus() == "Pending") {
+            hasRequests = true;
+            double renterReqRating = auth->getUserRenterRating(req.getRenterUsername());
+            cout << setw(18) << (req.getStartDate() + "-" + req.getEndDate()) << " | "
+                 << setw(13) << fixed << setprecision(1) << renterReqRating << " | "
+                 << req.getRenterUsername() << "\n";
         }
     }
-    
-    if (pendingRequests.empty()) {
-        cout << "│ No pending rental requests found.                       │\n";
-    } else {
-        cout << "│ " << setw(20) << left << "Renter" << "│ " << setw(25) << "Motorbike" << "│ " << setw(15) << "Status" << "│\n";
-        cout << "├────────────────────┼─────────────────────────┼─────────────────┤\n";
-        for (const Booking& request : pendingRequests) {
-            string motorbikeInfo = request.getBrand() + " " + request.getModel();
-            cout << "│ " << setw(20) << left << request.getRenterUsername() << "│ " 
-                 << setw(25) << motorbikeInfo << "│ " << setw(15) << request.getStatus() << "│\n";
-        }
+    if (!hasRequests) {
+        cout << "No pending rental requests found." << "\n";
     }
-    cout << "└────────────────────┴─────────────────────────┴─────────────────┘\n\n";
+    cout << "\n";
     
-    // Quick Actions Section
-    cout << "┌─ QUICK ACTIONS ─────────────────────────────────────────────┐\n";
-    cout << "│ 1. Browse Available Motorbikes                             │\n";
-    cout << "│ 2. View Rental Requests                                    │\n";
-    cout << "│ 3. Complete Active Rentals                                 │\n";
-    cout << "│ 4. Rate Completed Rentals                                  │\n";
-    cout << "│ 5. Back to Main Menu                                       │\n";
-    cout << "└─────────────────────────────────────────────────────────────┘\n";
+    // Simple next step
+    cout << "1.Browse available motorbikes  2.View rental requests  3.Back\n";
     cout << "Enter your choice: ";
-    
     int choice;
     cin >> choice;
-    
     switch (choice) {
         case 1:
             showMotorbikeSearchMenu();
@@ -1717,12 +1709,6 @@ void UI::showActivityDashboard() {
             viewRentalRequests();
             break;
         case 3:
-            viewApprovedRentals();
-            break;
-        case 4:
-            viewCompletedRentals();
-            break;
-        case 5:
             return;
         default:
             cout << "Invalid choice.\n";
@@ -1743,18 +1729,16 @@ void UI::showVerificationMenu() {
     string username = auth->getCurrentUser()->getUsername();
     
     clearScreen();
-    cout << "╔══════════════════════════════════════════════════════════════╗\n";
-    cout << "║                 IDENTITY VERIFICATION                       ║\n";
-    cout << "╚══════════════════════════════════════════════════════════════╝\n\n";
+    cout << "IDENTITY VERIFICATION\n\n";
     
     // Display current verification status
     auth->displayVerificationStatus(username);
     
-    cout << "\n┌─ VERIFICATION OPTIONS ──────────────────────────────────────┐\n";
-    cout << "│ 1. Verify My Identity                                      │\n";
-    cout << "│ 2. View Verification Status                                │\n";
-    cout << "│ 3. Back to Main Menu                                       │\n";
-    cout << "└─────────────────────────────────────────────────────────────┘\n";
+    cout << "\nVerification options\n";
+    cout << string(20, '-') << "\n";
+    cout << "1. Verify My Identity\n";
+    cout << "2. View Verification Status\n";
+    cout << "3. Back to Main Menu\n";
     cout << "Enter your choice: ";
     
     int choice;
@@ -1780,3 +1764,4 @@ void UI::showVerificationMenu() {
             pauseScreen();
     }
 }
+

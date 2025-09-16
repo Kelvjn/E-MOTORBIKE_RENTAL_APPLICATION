@@ -6,6 +6,7 @@
 #include <conio.h>
 #include <limits>
 #include <algorithm>
+#include <cctype>
 
 using namespace std;
 
@@ -534,7 +535,24 @@ bool Auth::verifyIdentity(const string& username) {
             // Verify email domain
             cout << "Email Domain (e.g., gmail.com): ";
             getline(cin, input);
+            // Normalize both the user-entered value and stored email domain
+            auto trim = [](string &s){
+                size_t start = s.find_first_not_of(" \t\r\n");
+                size_t end = s.find_last_not_of(" \t\r\n");
+                if (start == string::npos) { s.clear(); return; }
+                s = s.substr(start, end - start + 1);
+            };
+            auto toLowerInPlace = [](string &s){
+                transform(s.begin(), s.end(), s.begin(), [](unsigned char c){ return (char)tolower(c); });
+            };
+            // If user typed a full email, keep only the part after '@'
+            trim(input);
+            size_t atPosInput = input.find('@');
+            if (atPosInput != string::npos) input = input.substr(atPosInput + 1);
+            toLowerInPlace(input);
             string emailDomain = user.getEmail().substr(user.getEmail().find('@') + 1);
+            trim(emailDomain);
+            toLowerInPlace(emailDomain);
             if (input != emailDomain) {
                 cout << "Email domain does not match records." << endl;
                 verified = false;
@@ -578,7 +596,7 @@ void Auth::displayVerificationStatus(const string& username) {
         if (user.getUsername() == username) {
             cout << "=== VERIFICATION STATUS ===" << endl;
             cout << "Username: " << username << endl;
-            cout << "Status: " << (user.getIsVerified() ? "VERIFIED ✓" : "NOT VERIFIED ✗") << endl;
+            cout << "Status: " << (user.getIsVerified() ? "VERIFIED" : "NOT VERIFIED") << endl;
             if (user.getIsVerified()) {
                 cout << "Verification Date: " << user.getVerificationDate() << endl;
             }
