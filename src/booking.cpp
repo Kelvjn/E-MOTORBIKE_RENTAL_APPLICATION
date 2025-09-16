@@ -156,14 +156,27 @@ void Booking::displayInfo() const {
 }
 
 // ============================================================================
+// REVIEW CLASS IMPLEMENTATION
+// ============================================================================
+
+Review::Review(const string& reviewId, const string& motorbikeId, 
+               const string& renterUsername, double rating,
+               const string& comment, const string& reviewDate)
+    : reviewId(reviewId), motorbikeId(motorbikeId), renterUsername(renterUsername),
+      rating(rating), comment(comment), reviewDate(reviewDate) {
+}
+
+// ============================================================================
 // BOOKING MANAGER CLASS IMPLEMENTATION
 // ============================================================================
 
 BookingManager::BookingManager() {
-    bookingFilename = "bookings.txt";
-    motorbikeFilename = "motorbikes.txt";
+    bookingFilename = "data/bookings.txt";
+    motorbikeFilename = "data/motorbikes.txt";
+    reviewFilename = "data/reviews.txt";
     loadBookings();
     loadMotorbikes();
+    loadReviews();
     
     // Create sample data if files are empty
     if (bookings.empty() && motorbikes.empty()) {
@@ -595,6 +608,7 @@ bool BookingManager::validateListingData(const string& location, const string& s
 }
 
 double BookingManager::getUserRenterRating(const string& username) {
+    (void)username; // Suppress unused parameter warning
     // This would typically come from the Auth system
     return 3.0; // Default rating
 }
@@ -724,6 +738,8 @@ bool BookingManager::isDateInRange(const string& searchDate, const string& start
 }
 
 double BookingManager::calculateTotalCost(const Motorbike& motorbike, const string& startDate, const string& endDate) {
+    (void)startDate; // Suppress unused parameter warning
+    (void)endDate;   // Suppress unused parameter warning
     // Simple calculation - in real app, would calculate actual days
     int days = 1; // Default to 1 day
     return motorbike.calculateRentalCost(days);
@@ -748,17 +764,32 @@ bool BookingManager::hasValidLicense(const string& username, Auth& auth, int eng
         return true; // No license required for 50cc and below
     }
     
-    string licenseExpiry = auth.getUserLicenseExpiry(username);
-    // Simple check - in real app, would parse and compare dates
-    return !licenseExpiry.empty() && licenseExpiry != "N/A";
+    // Get current user and check license validity
+    User* currentUser = auth.getCurrentUser();
+    if (!currentUser || currentUser->getUsername() != username) {
+        // Try to find user in auth system
+        vector<User> allUsers = auth.getAllUsers();
+        for (const User& user : allUsers) {
+            if (user.getUsername() == username) {
+                return user.hasValidLicense();
+            }
+        }
+        return false;
+    }
+    
+    return currentUser->hasValidLicense();
 }
 
 vector<string> BookingManager::getMotorbikeReviews(const string& motorbikeId) {
-    vector<string> reviews;
-    // In a real app, this would fetch actual reviews
-    reviews.push_back("Great motorbike, very reliable!");
-    reviews.push_back("Good condition, would rent again.");
-    return reviews;
+    vector<string> motorbikeComments;
+    
+    for (const Review& review : reviews) {
+        if (review.getMotorbikeId() == motorbikeId) {
+            motorbikeComments.push_back(review.getComment());
+        }
+    }
+    
+    return motorbikeComments;
 }
 
 double BookingManager::getAverageRating(const string& motorbikeId) {
@@ -875,4 +906,50 @@ void BookingManager::createSampleMotorbikes() {
     }
     
     saveMotorbikes();
+}
+
+void BookingManager::loadReviews() {
+    ifstream file(reviewFilename);
+    if (!file.is_open()) {
+        return;
+    }
+    
+    string line;
+    while (getline(file, line)) {
+        if (line.empty() || line[0] == '#') continue;
+        
+        stringstream ss(line);
+        string token;
+        vector<string> tokens;
+        
+        while (getline(ss, token, '|')) {
+            tokens.push_back(token);
+        }
+        
+        if (tokens.size() >= 6) {
+            Review review(tokens[0], tokens[1], tokens[2], stod(tokens[3]), tokens[4], tokens[5]);
+            reviews.push_back(review);
+        }
+    }
+    file.close();
+}
+
+void BookingManager::saveReviews() {
+    ofstream file(reviewFilename);
+    if (!file.is_open()) {
+        cout << "Error: Cannot save reviews to file." << endl;
+        return;
+    }
+    
+    file << "# Review Data Format: reviewId|motorbikeId|renterUsername|rating|comment|reviewDate" << endl;
+    
+    for (const Review& review : reviews) {
+        file << review.getReviewId() << "|"
+             << review.getMotorbikeId() << "|"
+             << review.getRenterUsername() << "|"
+             << review.getRating() << "|"
+             << review.getComment() << "|"
+             << review.getReviewDate() << endl;
+    }
+    file.close();
 }

@@ -187,17 +187,46 @@ public:
     void displayInfo() const;
 };
 
+// Review class for motorbike reviews
+class Review {
+private:
+    std::string reviewId;
+    std::string motorbikeId;
+    std::string renterUsername;
+    double rating;
+    std::string comment;
+    std::string reviewDate;
+
+public:
+    // Constructor
+    Review(const std::string& reviewId = "", const std::string& motorbikeId = "",
+           const std::string& renterUsername = "", double rating = 0.0,
+           const std::string& comment = "", const std::string& reviewDate = "");
+    
+    // Getters
+    std::string getReviewId() const { return reviewId; }
+    std::string getMotorbikeId() const { return motorbikeId; }
+    std::string getRenterUsername() const { return renterUsername; }
+    double getRating() const { return rating; }
+    std::string getComment() const { return comment; }
+    std::string getReviewDate() const { return reviewDate; }
+};
+
 class BookingManager {
 private:
     std::vector<Booking> bookings;
     std::vector<Motorbike> motorbikes;
+    std::vector<Review> reviews;
     std::string bookingFilename;
     std::string motorbikeFilename;
+    std::string reviewFilename;
     
     void loadBookings();
     void saveBookings();
     void loadMotorbikes();
     void saveMotorbikes();
+    void loadReviews();
+    void saveReviews();
     std::string generateBookingId();
     std::string generateMotorbikeId();
     

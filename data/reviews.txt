@@ -1,0 +1,13 @@
+# Review Data Format: reviewId|motorbikeId|renterUsername|rating|comment|reviewDate
+R001|MB001|soohyukjang|4.5|VinFast Klara S runs very smoothly and quietly. Perfect for city rides!|15/09/2025
+R002|MB002|tuanhaipham|4.3|Honda Air Blade has great acceleration. Very reliable bike.|20/09/2025
+R003|MB003|thequyenvu|4.7|Yamaha Exciter is amazing for long rides. Powerful engine!|24/09/2025
+R004|MB004|ducthinhlu|4.6|VinFast Theon electric bike is eco-friendly and stylish.|22/09/2025
+R005|MB008|ducthinhlu|4.8|Honda SH premium quality is outstanding. Smooth ride in Hanoi traffic.|07/10/2025
+R006|MB012|ducthinhlu|4.3|Suzuki Burgman comfortable for touring. Good fuel efficiency.|26/10/2025
+R007|MB001|tuanhaipham|4.4|Clean and well-maintained VinFast. Owner very responsive.|18/09/2025
+R008|MB009|thequyenvu|4.9|Yamaha NMAX sport performance exceeded expectations!|12/10/2025
+R009|MB010|soohyukjang|4.0|Piaggio Liberty European style is unique and comfortable.|17/10/2025
+R010|MB005|ducthinhlu|4.2|Honda Vision reliable for daily commuting in Hanoi.|26/09/2025
+R011|MB006|tuanhaipham|4.1|Suzuki Address compact size perfect for narrow streets.|30/09/2025
+R012|MB007|thequyenvu|4.4|VinFast Ludo small but mighty. Great for beginners.|03/10/2025
