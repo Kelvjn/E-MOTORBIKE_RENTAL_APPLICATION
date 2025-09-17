@@ -5,3 +5,4 @@ BK003|thequyenvu|tuanhaipham|MB003|22/09/2025|24/09/2025|Completed|135|Yamaha|Ex
 BK004|ducthinhlu|thequyenvu|MB004|20/09/2025|22/09/2025|Completed|100|VinFast|Theon|White|150cc|51D4-45678
 BK005|soohyukjang|tuanhaipham|MB003|25/09/2025|26/09/2025|Rejected|45|Yamaha|Exciter|Black|150cc|59C3-34567
 BK6|thequyenvu|ducthinhlu|MB001|01/09/2025|02/09/2025|Approved|25|VinFast|Klara S|Red|50cc|59A1-12345
+BK7|ducthinhlu|soohyukjang|MB002|18/09/2025|21/09/2025|Pending|35|Honda|Air Blade|Blue|125cc|51B2-23456
