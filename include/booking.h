@@ -239,6 +239,8 @@ public:
     bool isMotorbikeBooked(const string& ownerUsername);
     bool validateListingData(const string& location, const string& startDate, 
                            const string& endDate, double pricePerDay, double minRating);
+    bool isValidDate(const string& date);
+    bool isDateBefore(const string& date1, const string& date2);
     
     // Statistics
     double getUserRenterRating(const string& username);
@@ -267,6 +269,10 @@ public:
     bool completeRental(const string& bookingId, const string& renterUsername);
     bool rateMotorbike(const string& bookingId, const string& renterUsername, double rating, const string& comment);
     bool rateRenter(const string& bookingId, const string& ownerUsername, double rating, const string& comment);
+    
+    // Review management
+    string generateReviewId();
+    bool addReview(const string& motorbikeId, const string& renterUsername, double rating, const string& comment);
     
     // Sample data
     void createSampleData();

@@ -343,11 +343,20 @@ void UIMotorbike::searchMotorbikes() {
         cout << "- License requirements not met (for motorbikes > 50cc)\n";
     } else {
         cout << "Available Motorbikes:\n";
-        cout << "ID  | Brand/Model        | Color  | Size  | Plate No.    | Daily Rate | Rating | Min Rating\n";
-        cout << "----|-------------------|--------|-------|--------------|------------|--------|-----------\n";
+        cout << "ID  | Brand/Model        | Color  | Size  | Plate No.    | Daily Rate | Rating | Min Rating | License\n";
+        cout << "----|-------------------|--------|-------|--------------|------------|--------|------------|--------\n";
         
         for (size_t i = 0; i < results.size(); i++) {
             const Motorbike& motorbike = results[i];
+            string licenseStatus = "";
+            int engineSize = motorbike.getEngineSize();
+            
+            if (engineSize > 50) {
+                licenseStatus = "Required";
+            } else {
+                licenseStatus = "Not Required";
+            }
+            
             cout << setw(3) << (i + 1) << " | "
                  << setw(17) << (motorbike.getBrand() + " " + motorbike.getModel()) << " | "
                  << setw(6) << motorbike.getColor() << " | "
@@ -355,7 +364,8 @@ void UIMotorbike::searchMotorbikes() {
                  << setw(12) << motorbike.getPlateNo() << " | "
                  << setw(10) << motorbike.getPricePerDay() << " CP | "
                  << setw(6) << fixed << setprecision(1) << motorbike.getRating() << " | "
-                 << setw(9) << motorbike.getMinRenterRating() << "\n";
+                 << setw(10) << motorbike.getMinRenterRating() << " | "
+                 << setw(6) << licenseStatus << "\n";
         }
         
         // Option to view details
@@ -407,6 +417,23 @@ void UIMotorbike::displayMotorbikeDetails(const Motorbike& motorbike) {
     cout << "Minimum Required Renter Rating: " << motorbike.getMinRenterRating() << "\n";
     cout << "Motorbike Rating: " << motorbike.getRating() << "/5.0\n";
     cout << "Description: " << motorbike.getDescription() << "\n";
+    
+    // Display license requirement notice
+    int engineSize = motorbike.getEngineSize();
+    if (engineSize > 50) {
+        cout << "\nLicense Required: Yes (over 50cc)\n";
+        if (auth && auth->getCurrentUser()) {
+            User* currentUser = auth->getCurrentUser();
+            if (!currentUser->hasValidLicense()) {
+                cout << "Your License Status: Not Valid - Cannot rent this motorbike\n";
+                cout << "Please update your profile with a valid driver's license.\n";
+            } else {
+                cout << "Your License Status: Valid - You can rent this motorbike\n";
+            }
+        }
+    } else {
+        cout << "\nLicense Required: No (50cc or below)\n";
+    }
     
     // Display reviews
     displayMotorbikeReviews(motorbike.getMotorbikeId());

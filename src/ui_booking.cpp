@@ -309,3 +309,140 @@ void UIBooking::completeRental(const Booking& booking) {
     
     uiCore->pauseScreen();
 }
+
+/**
+ * Displays all user bookings (as renter) with detailed information.
+ */
+void UIBooking::viewUserBookings() {
+    if (!auth || !auth->getCurrentUser() || !bookingManager || !uiCore) {
+        cout << "Error: Required components not available.\n";
+        if (uiCore) uiCore->pauseScreen();
+        return;
+    }
+    
+    string username = auth->getCurrentUser()->getUsername();
+    
+    uiCore->clearScreen();
+    cout << "=== MY BOOKINGS ===\n";
+    
+    vector<Booking> userBookings = bookingManager->getUserBookings(username);
+    
+    if (userBookings.empty()) {
+        cout << "No bookings found.\n";
+        cout << "You haven't made any rental requests yet.\n";
+    } else {
+        cout << "Your Rental Bookings:\n";
+        cout << "ID  | Booking ID | Motorbike        | Period           | Status    | Cost\n";
+        cout << "----|------------|------------------|------------------|-----------|-------\n";
+        
+        for (size_t i = 0; i < userBookings.size(); i++) {
+            const Booking& booking = userBookings[i];
+            cout << setw(3) << (i + 1) << " | "
+                 << setw(10) << booking.getBookingId() << " | "
+                 << setw(16) << (booking.getBrand() + " " + booking.getModel()) << " | "
+                 << setw(16) << (booking.getStartDate() + "-" + booking.getEndDate()) << " | "
+                 << setw(9) << booking.getStatus() << " | "
+                 << setw(5) << booking.getTotalCost() << " CP\n";
+        }
+        
+        cout << "\nBooking Status Legend:\n";
+        cout << "- Pending: Waiting for owner approval\n";
+        cout << "- Approved: Rental confirmed, payment deducted\n";
+        cout << "- Rejected: Request was declined by owner\n";
+        cout << "- Completed: Rental finished, ready for rating\n";
+    }
+    
+    uiCore->pauseScreen();
+}
+
+/**
+ * Displays completed rentals for owner to rate renters.
+ */
+void UIBooking::viewCompletedRentalsForOwner() {
+    if (!auth || !auth->getCurrentUser() || !bookingManager || !uiCore) {
+        cout << "Error: Required components not available.\n";
+        if (uiCore) uiCore->pauseScreen();
+        return;
+    }
+    
+    string username = auth->getCurrentUser()->getUsername();
+    
+    uiCore->clearScreen();
+    cout << "=== COMPLETED RENTALS (AS OWNER) ===\n";
+    
+    // Get all bookings where this user is the owner and status is Completed
+    vector<Booking> allBookings = bookingManager->getAllBookings();
+    vector<Booking> completedOwnerBookings;
+    
+    for (const Booking& booking : allBookings) {
+        if (booking.getOwnerUsername() == username && booking.getStatus() == "Completed") {
+            completedOwnerBookings.push_back(booking);
+        }
+    }
+    
+    if (completedOwnerBookings.empty()) {
+        cout << "No completed rentals found for your motorbikes.\n";
+        uiCore->pauseScreen();
+        return;
+    }
+    
+    cout << "Completed Rentals (Your Motorbikes):\n";
+    cout << "ID  | Motorbike        | Renter        | Period           | Cost  | Status\n";
+    cout << "----|------------------|---------------|------------------|-------|--------\n";
+    
+    for (size_t i = 0; i < completedOwnerBookings.size(); i++) {
+        const Booking& booking = completedOwnerBookings[i];
+        cout << setw(3) << (i + 1) << " | "
+             << setw(16) << (booking.getBrand() + " " + booking.getModel()) << " | "
+             << setw(13) << booking.getRenterUsername() << " | "
+             << setw(16) << (booking.getStartDate() + "-" + booking.getEndDate()) << " | "
+             << setw(5) << booking.getTotalCost() << " CP | "
+             << booking.getStatus() << "\n";
+    }
+    
+    cout << "\nEnter rental number to rate the renter (0 to go back): ";
+    int choice;
+    cin >> choice;
+    
+    if (choice > 0 && choice <= static_cast<int>(completedOwnerBookings.size())) {
+        rateRenter(completedOwnerBookings[choice - 1]);
+    }
+    
+    uiCore->pauseScreen();
+}
+
+/**
+ * Handles renter rating by the owner.
+ */
+void UIBooking::rateRenter(const Booking& booking) {
+    if (!bookingManager || !uiCore) {
+        cout << "Error: Required components not available.\n";
+        if (uiCore) uiCore->pauseScreen();
+        return;
+    }
+
+    uiCore->clearScreen();
+    cout << "=== RATE RENTER ===\n";
+    cout << "Booking ID: " << booking.getBookingId() << "\n";
+    cout << "Renter: " << booking.getRenterUsername() << "\n";
+    cout << "Motorbike: " << booking.getBrand() << " " << booking.getModel() << "\n";
+    cout << "Period: " << booking.getStartDate() << " to " << booking.getEndDate() << "\n\n";
+    
+    double rating;
+    string comment;
+    
+    cout << "Rate the renter (1.0 - 5.0): ";
+    cin >> rating;
+    
+    cout << "Enter your comment: ";
+    cin.ignore();
+    getline(cin, comment);
+    
+    if (bookingManager->rateRenter(booking.getBookingId(), booking.getOwnerUsername(), rating, comment)) {
+        cout << "Thank you for rating the renter!\n";
+    } else {
+        cout << "Failed to submit rating.\n";
+    }
+    
+    uiCore->pauseScreen();
+}

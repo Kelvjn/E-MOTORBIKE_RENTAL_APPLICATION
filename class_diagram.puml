@@ -16,6 +16,13 @@ class User {
     +getUsername(): string
     +getPassword(): string
     +getRole(): string
+    +getFullName(): string
+    +getEmail(): string
+    +getPhoneNumber(): string
+    +getIdType(): string
+    +getIdNumber(): string
+    +getLicenseNumber(): string
+    +getLicenseExpiry(): string
     +getCreditPoints(): double
     +getRating(): double
     +hasValidLicense(): bool
@@ -25,14 +32,28 @@ class User {
 class Auth {
     -users: vector<User>
     -currentUser: User*
+    -accountFilename: string
+    -loadUsers(): void
+    -saveUsers(): void
     +login(): bool
     +adminLogin(): bool
     +registerUser(): bool
+    +logout(): void
     +getCurrentUser(): User*
+    +validateEmail(): bool
+    +validatePhoneNumber(): bool
     +validatePassword(): bool
     +updateProfile(): bool
+    +changePassword(): bool
     +topUpCreditPoints(): bool
     +deductCreditPoints(): bool
+    +getUserRenterRating(): double
+    +getUserCreditPoints(): double
+    +getUserLicenseExpiry(): string
+    +getAllUsers(): vector<User>
+    +verifyIdentity(): bool
+    +displayVerificationStatus(): void
+    +displayProfile(): void
 }
 
 class Motorbike {
@@ -52,12 +73,35 @@ class Motorbike {
     -availableEndDate: string
     -minRenterRating: double
     -isListed: bool
+    +getMotorbikeId(): string
+    +getOwnerUsername(): string
     +getBrand(): string
     +getModel(): string
+    +getColor(): string
+    +getSize(): string
+    +getPlateNo(): string
     +getPricePerDay(): double
+    +getLocation(): string
+    +getIsAvailable(): bool
+    +getRating(): double
+    +getDescription(): string
+    +getAvailableStartDate(): string
+    +getAvailableEndDate(): string
+    +getMinRenterRating(): double
+    +getIsListed(): bool
     +getEngineSize(): int
     +calculateRentalCost(): double
     +isAvailableForDate(): bool
+    +isAvailableForDateRange(): bool
+    +meetsRenterRequirements(): bool
+    +isElectric(): bool
+    +displayInfo(): void
+    +setRating(): void
+    +setDescription(): void
+    +setAvailableStartDate(): void
+    +setAvailableEndDate(): void
+    +setMinRenterRating(): void
+    +setIsListed(): void
 }
 
 class Booking {
@@ -69,11 +113,25 @@ class Booking {
     -endDate: string
     -status: string
     -totalCost: double
+    -brand: string
+    -model: string
+    -color: string
+    -size: string
     +getBookingId(): string
     +getRenterUsername(): string
+    +getOwnerUsername(): string
+    +getMotorbikeId(): string
+    +getStartDate(): string
+    +getEndDate(): string
     +getStatus(): string
+    +getTotalCost(): double
+    +getBrand(): string
+    +getModel(): string
+    +getColor(): string
+    +getSize(): string
     +isPending(): bool
     +isApproved(): bool
+    +isCompleted(): bool
     +setStatus(): void
 }
 
@@ -86,29 +144,150 @@ class Review {
     -reviewDate: string
     +getReviewId(): string
     +getMotorbikeId(): string
+    +getRenterUsername(): string
     +getRating(): double
     +getComment(): string
+    +getReviewDate(): string
 }
 
 class BookingManager {
     -bookings: vector<Booking>
     -motorbikes: vector<Motorbike>
     -reviews: vector<Review>
+    -bookingFilename: string
+    -motorbikeFilename: string
+    -reviewFilename: string
+    -loadBookings(): void
+    -saveBookings(): void
+    -loadMotorbikes(): void
+    -saveMotorbikes(): void
+    -loadReviews(): void
+    -saveReviews(): void
+    -generateBookingId(): string
+    -generateMotorbikeId(): string
     +createBooking(): bool
     +approveBooking(): bool
-    +searchMotorbikes(): vector<Motorbike>
+    +rejectBooking(): bool
+    +getUserBookings(): vector<Booking>
+    +getUserRentalRequests(): vector<Booking>
+    +getAllBookings(): vector<Booking>
+    +addMotorbike(): bool
+    +getAvailableMotorbikes(): vector<Motorbike>
+    +getGuestMotorbikes(): vector<Motorbike>
+    +getUserMotorbikes(): vector<Motorbike>
+    +getMotorbikeById(): Motorbike*
     +listMotorbike(): bool
-    +loadData(): void
-    +saveData(): void
+    +unlistMotorbike(): bool
+    +isMotorbikeListed(): bool
+    +isMotorbikeBooked(): bool
+    +validateListingData(): bool
+    +isValidDate(): bool
+    +isDateBefore(): bool
+    +getUserRenterRating(): double
+    +getUserMotorbikeRating(): double
+    +searchMotorbikes(): vector<Motorbike>
+    +searchMotorbikesByDateRange(): vector<Motorbike>
+    +meetsSearchCriteria(): bool
+    +meetsDateRangeSearchCriteria(): bool
+    +isDateInRange(): bool
+    +calculateTotalCost(): double
+    +getEngineSize(): int
+    +hasValidLicense(): bool
+    +getMotorbikeReviews(): vector<string>
+    +getAverageRating(): double
+    +hasActiveRental(): bool
+    +hasOverlappingApprovedBookings(): bool
+    +rejectOverlappingRequests(): void
+    +completeRental(): bool
+    +rateMotorbike(): bool
+    +rateRenter(): bool
+    +generateReviewId(): string
+    +addReview(): bool
+    +createSampleData(): void
+    +createSampleMotorbikes(): void
 }
 
-class UI {
+class UICore {
     -auth: Auth*
     -bookingManager: BookingManager*
+    -uiProfile: UIProfile*
+    -uiMotorbike: UIMotorbike*
+    -uiBooking: UIBooking*
+    -uiAdmin: UIAdmin*
+    -uiGuest: UIGuest*
+    -uiDashboard: UIDashboard*
     +showWelcomeScreen(): void
     +showMainMenu(): int
     +showMemberMenu(): void
     +showAdminMenu(): void
+    +showGuestMenu(): void
+    +clearScreen(): void
+    +pauseScreen(): void
+}
+
+class UIProfile {
+    -auth: Auth*
+    -uiCore: UICore*
+    +showProfileMenu(): void
+    +viewProfile(): void
+    +updateProfile(): void
+    +changePassword(): void
+    +topUpCreditPoints(): void
+}
+
+class UIMotorbike {
+    -auth: Auth*
+    -bookingManager: BookingManager*
+    -uiCore: UICore*
+    +showMotorbikeListingMenu(): void
+    +listMyMotorbike(): void
+    +unlistMyMotorbike(): void
+    +showMotorbikeSearchMenu(): void
+    +searchMotorbikes(): void
+    +searchMotorbikesByDateRange(): void
+    +displayMotorbikeDetails(): void
+}
+
+class UIBooking {
+    -auth: Auth*
+    -bookingManager: BookingManager*
+    -uiCore: UICore*
+    +viewUserBookings(): void
+    +viewRentalRequests(): void
+    +manageRentalRequest(): void
+    +viewCompletedRentals(): void
+    +viewCompletedRentalsForOwner(): void
+    +rateMotorbike(): void
+    +rateRenter(): void
+    +viewApprovedRentals(): void
+    +completeRental(): void
+}
+
+class UIAdmin {
+    -auth: Auth*
+    -bookingManager: BookingManager*
+    -uiCore: UICore*
+    +showAdminMenu(): void
+    +viewAllMembers(): void
+    +viewAllMotorbikes(): void
+    +viewSystemStatistics(): void
+}
+
+class UIGuest {
+    -bookingManager: BookingManager*
+    -uiCore: UICore*
+    +showGuestMenu(): void
+    +viewMotorbikeListings(): void
+}
+
+class UIDashboard {
+    -auth: Auth*
+    -bookingManager: BookingManager*
+    -uiCore: UICore*
+    -uiMotorbike: UIMotorbike*
+    -uiBooking: UIBooking*
+    +showActivityDashboard(): void
+    +showVerificationMenu(): void
 }
 
 ' Relationships
@@ -116,7 +295,31 @@ Auth *-- User : contains
 BookingManager *-- Booking : contains
 BookingManager *-- Motorbike : contains
 BookingManager *-- Review : contains
-UI --> Auth : uses
-UI --> BookingManager : uses
+UICore --> Auth : uses
+UICore --> BookingManager : uses
+UICore --> UIProfile : uses
+UICore --> UIMotorbike : uses
+UICore --> UIBooking : uses
+UICore --> UIAdmin : uses
+UICore --> UIGuest : uses
+UICore --> UIDashboard : uses
+UIProfile --> Auth : uses
+UIProfile --> UICore : uses
+UIMotorbike --> Auth : uses
+UIMotorbike --> BookingManager : uses
+UIMotorbike --> UICore : uses
+UIBooking --> Auth : uses
+UIBooking --> BookingManager : uses
+UIBooking --> UICore : uses
+UIAdmin --> Auth : uses
+UIAdmin --> BookingManager : uses
+UIAdmin --> UICore : uses
+UIGuest --> BookingManager : uses
+UIGuest --> UICore : uses
+UIDashboard --> Auth : uses
+UIDashboard --> BookingManager : uses
+UIDashboard --> UICore : uses
+UIDashboard --> UIMotorbike : uses
+UIDashboard --> UIBooking : uses
 
 @enduml

@@ -130,9 +130,10 @@ void UICore::showMemberMenu() {
         cout << "5. Rental requests (for my motorbikes)\n";
         cout << "6. Complete approved rentals\n";
         cout << "7. My profile\n";
-        cout << "8. Rate completed rentals\n";
-        cout << "9. Identity verification\n";
-        cout << "10. Logout\n";
+        cout << "8. Rate completed rentals (as renter)\n";
+        cout << "9. Rate completed rentals (as owner)\n";
+        cout << "10. Identity verification\n";
+        cout << "11. Logout\n";
         cout << "Enter your choice: ";
         
         cin >> choice;
@@ -148,8 +149,7 @@ void UICore::showMemberMenu() {
                 if (uiMotorbike) uiMotorbike->showMotorbikeSearchMenu();
                 break;
             case 4:
-                cout << "Viewing my bookings...\n";
-                pauseScreen();
+                if (uiBooking) uiBooking->viewUserBookings();
                 break;
             case 5:
                 if (uiBooking) uiBooking->viewRentalRequests();
@@ -164,16 +164,19 @@ void UICore::showMemberMenu() {
                 if (uiBooking) uiBooking->viewCompletedRentals();
                 break;
             case 9:
-                if (uiDashboard) uiDashboard->showVerificationMenu();
+                if (uiBooking) uiBooking->viewCompletedRentalsForOwner();
                 break;
             case 10:
+                if (uiDashboard) uiDashboard->showVerificationMenu();
+                break;
+            case 11:
                 cout << "Logging out...\n";
                 return;
             default:
                 cout << "Invalid choice.\n";
                 pauseScreen();
         }
-    } while (choice != 10);
+    } while (choice != 11);
 }
 
 /**

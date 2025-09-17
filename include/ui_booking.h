@@ -39,10 +39,13 @@ public:
     ~UIBooking();
     
     // Rental request and management functions
+    void viewUserBookings();       // View all user bookings (as renter)
     void viewRentalRequests();     // View rental requests for owner
     void manageRentalRequest(const struct Booking& request); // Approve/reject requests
-    void viewCompletedRentals();   // View completed rentals for rating
+    void viewCompletedRentals();   // View completed rentals for rating (as renter)
+    void viewCompletedRentalsForOwner(); // View completed rentals for rating (as owner)
     void rateMotorbike(const struct Booking& booking); // Rate motorbike after rental
+    void rateRenter(const struct Booking& booking); // Rate renter after rental
     void viewApprovedRentals();    // View approved rentals for completion
     void completeRental(const struct Booking& booking); // Complete rental
     

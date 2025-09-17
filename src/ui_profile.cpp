@@ -249,7 +249,7 @@ void UIProfile::topUpCreditPoints() {
     // Process top-up
     if (auth->topUpCreditPoints(auth->getCurrentUser()->getUsername(), amount)) {
         cout << "Successfully topped up " << amount << " CPs!\n";
-        cout << "New balance: " << (auth->getCurrentUser()->getCreditPoints() + amount) << " CPs\n";
+        cout << "New balance: " << auth->getCurrentUser()->getCreditPoints() << " CPs\n";
     } else {
         cout << "Failed to top up credit points.\n";
     }

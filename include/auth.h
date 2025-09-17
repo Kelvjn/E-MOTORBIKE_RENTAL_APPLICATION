@@ -64,6 +64,11 @@ class Auth {
 private:
     vector<User> users;
     User* currentUser;
+    string accountFilename;
+    
+    // File I/O methods
+    void loadUsers();
+    void saveUsers();
 
 public:
     // Constructor

@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <cctype>
 #include <vector>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -21,21 +23,27 @@ User::User(const string& username, const string& password, const string& role,
 
 // Auth class implementation
 Auth::Auth() : currentUser(nullptr) {
-    // Create sample users with group members' information
-    users.push_back(User("admin", "Admin123!", "admin", "System Administrator", "admin@motorbike.com", "0901234567", 
-                         "Passport", "P999999999", "DL999999", "31/12/2030", 100.0, 5.0));
-    users.push_back(User("ducthinhlu", "Thinh123!", "member", "Lu Duc Thinh", "thinh.lu@student.rmit.edu.vn", "0912345678",
-                         "Citizen ID", "123456789", "DL001234", "31/12/2025", 50.0, 4.2));
-    users.push_back(User("soohyukjang", "Soohyuk123!", "member", "Jang Soohyuk", "soohyuk.jang@student.rmit.edu.vn", "0923456789",
-                         "Passport", "P987654321", "DL005678", "31/12/2025", 40.0, 3.8));
-    users.push_back(User("tuanhaipham", "Tuanhai123!", "member", "Pham Tuan Hai", "tuanhai.pham@student.rmit.edu.vn", "0934567890",
-                         "Citizen ID", "987654321", "DL009012", "31/12/2025", 35.0, 4.0));
-    users.push_back(User("thequyenvu", "Thequyen123!", "member", "Vu The Quyen", "thequyen.vu@student.rmit.edu.vn", "0945678901",
-                         "Passport", "P123456789", "DL003456", "31/12/2025", 60.0, 4.5));
+    accountFilename = "data/account.txt";
+    loadUsers();
+    
+    // Create sample users if file is empty
+    if (users.empty()) {
+        users.push_back(User("admin", "Admin123!", "admin", "System Administrator", "admin@motorbike.com", "0901234567", 
+                             "Passport", "P999999999", "DL999999", "31/12/2030", 100.0, 5.0));
+        users.push_back(User("ducthinhlu", "Thinh123!", "member", "Lu Duc Thinh", "thinh.lu@student.rmit.edu.vn", "0912345678",
+                             "Citizen ID", "123456789", "DL001234", "31/12/2025", 50.0, 4.2));
+        users.push_back(User("soohyukjang", "Soohyuk123!", "member", "Jang Soohyuk", "soohyuk.jang@student.rmit.edu.vn", "0923456789",
+                             "Passport", "P987654321", "DL005678", "31/12/2025", 40.0, 3.8));
+        users.push_back(User("tuanhaipham", "Tuanhai123!", "member", "Pham Tuan Hai", "tuanhai.pham@student.rmit.edu.vn", "0934567890",
+                             "Citizen ID", "987654321", "DL009012", "31/12/2025", 35.0, 4.0));
+        users.push_back(User("thequyenvu", "Thequyen123!", "member", "Vu The Quyen", "thequyen.vu@student.rmit.edu.vn", "0945678901",
+                             "Passport", "P123456789", "DL003456", "31/12/2025", 60.0, 4.5));
+        saveUsers(); // Save sample data
+    }
 }
 
 Auth::~Auth() {
-    // Destructor
+    saveUsers();
 }
 
 bool Auth::login() {
@@ -194,6 +202,9 @@ bool Auth::registerUser() {
     cout << "You have received 20 Credit Points and a default renter rating of 3.0." << endl;
     cout << "You can now login with your credentials." << endl;
     
+    // Save users to file
+    saveUsers();
+    
     return true;
 }
 
@@ -335,6 +346,7 @@ bool Auth::updateProfile(const string& username, const string& fullName,
             user.setFullName(fullName);
             user.setEmail(email);
             user.setPhoneNumber(phoneNumber);
+            saveUsers(); // Save to file after updating
             return true;
         }
     }
@@ -354,6 +366,7 @@ bool Auth::topUpCreditPoints(const string& username, double amount) {
     for (User& user : users) {
         if (user.getUsername() == username) {
             user.setCreditPoints(user.getCreditPoints() + amount);
+            saveUsers(); // Save to file after updating
             return true;
         }
     }
@@ -365,6 +378,7 @@ bool Auth::deductCreditPoints(const string& username, double amount) {
         if (user.getUsername() == username) {
             if (user.getCreditPoints() >= amount) {
                 user.setCreditPoints(user.getCreditPoints() - amount);
+                saveUsers(); // Save to file after updating
                 return true;
             }
             return false; // Insufficient credits
@@ -455,4 +469,65 @@ bool User::hasValidLicense() const {
     }
     
     return false;
+}
+
+void Auth::loadUsers() {
+    ifstream file(accountFilename);
+    if (!file.is_open()) {
+        return;
+    }
+    
+    string line;
+    while (getline(file, line)) {
+        if (line.empty() || line[0] == '#') continue;
+        
+        // Trim whitespace
+        line.erase(0, line.find_first_not_of(" \t\r\n"));
+        line.erase(line.find_last_not_of(" \t\r\n") + 1);
+        
+        if (line.empty()) continue;
+        
+        stringstream ss(line);
+        string token;
+        vector<string> tokens;
+        
+        while (getline(ss, token, '|')) {
+            token.erase(0, token.find_first_not_of(" \t\r\n"));
+            token.erase(token.find_last_not_of(" \t\r\n") + 1);
+            tokens.push_back(token);
+        }
+        
+        if (tokens.size() >= 12) {
+            User user(tokens[0], tokens[1], tokens[2], tokens[3], tokens[4], tokens[5],
+                     tokens[6], tokens[7], tokens[8], tokens[9], stod(tokens[10]), stod(tokens[11]));
+            users.push_back(user);
+        }
+    }
+    file.close();
+}
+
+void Auth::saveUsers() {
+    ofstream file(accountFilename);
+    if (!file.is_open()) {
+        cout << "Error: Cannot save users to file." << endl;
+        return;
+    }
+    
+    file << "# Account Data Format: username|password|role|fullName|email|phoneNumber|idType|idNumber|licenseNumber|licenseExpiry|creditPoints|rating" << endl;
+    
+    for (const User& user : users) {
+        file << user.getUsername() << "|"
+             << user.getPassword() << "|"
+             << user.getRole() << "|"
+             << user.getFullName() << "|"
+             << user.getEmail() << "|"
+             << user.getPhoneNumber() << "|"
+             << user.getIdType() << "|"
+             << user.getIdNumber() << "|"
+             << user.getLicenseNumber() << "|"
+             << user.getLicenseExpiry() << "|"
+             << user.getCreditPoints() << "|"
+             << user.getRating() << endl;
+    }
+    file.close();
 }

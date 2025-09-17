@@ -577,12 +577,64 @@ bool BookingManager::validateListingData(const string& location, const string& s
         return false;
     }
     
-    if (startDate >= endDate) {
+    // Parse dates for proper comparison (DD/MM/YYYY format)
+    if (!isValidDate(startDate) || !isValidDate(endDate)) {
+        cout << "Invalid date format. Please use DD/MM/YYYY format." << endl;
+        return false;
+    }
+    
+    if (!isDateBefore(startDate, endDate)) {
         cout << "Start date must be before end date." << endl;
         return false;
     }
     
     return true;
+}
+
+bool BookingManager::isValidDate(const string& date) {
+    // Check if date is in DD/MM/YYYY format
+    if (date.length() != 10) return false;
+    if (date[2] != '/' || date[5] != '/') return false;
+    
+    // Extract day, month, year
+    string dayStr = date.substr(0, 2);
+    string monthStr = date.substr(3, 2);
+    string yearStr = date.substr(6, 4);
+    
+    try {
+        int day = stoi(dayStr);
+        int month = stoi(monthStr);
+        int year = stoi(yearStr);
+        
+        // Basic validation
+        if (day < 1 || day > 31) return false;
+        if (month < 1 || month > 12) return false;
+        if (year < 2020 || year > 2030) return false;
+        
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
+bool BookingManager::isDateBefore(const string& date1, const string& date2) {
+    // Parse dates (DD/MM/YYYY format)
+    int day1 = stoi(date1.substr(0, 2));
+    int month1 = stoi(date1.substr(3, 2));
+    int year1 = stoi(date1.substr(6, 4));
+    
+    int day2 = stoi(date2.substr(0, 2));
+    int month2 = stoi(date2.substr(3, 2));
+    int year2 = stoi(date2.substr(6, 4));
+    
+    // Compare dates
+    if (year1 < year2) return true;
+    if (year1 > year2) return false;
+    
+    if (month1 < month2) return true;
+    if (month1 > month2) return false;
+    
+    return day1 < day2;
 }
 
 double BookingManager::getUserRenterRating(const string& username) {
@@ -657,11 +709,8 @@ bool BookingManager::meetsSearchCriteria(const Motorbike& motorbike, const strin
         return false;
     }
     
-    // Check license requirement
-    int engineSize = motorbike.getEngineSize();
-    if (engineSize > 50 && !hasValidLicense(username, auth, engineSize)) {
-        return false;
-    }
+    // Note: License requirement is checked during booking request, not during search
+    // This allows users to see all available motorbikes but prevents booking without valid license
     
     return true;
 }
@@ -702,11 +751,8 @@ bool BookingManager::meetsDateRangeSearchCriteria(const Motorbike& motorbike, co
         return false;
     }
     
-    // Check license requirement
-    int engineSize = motorbike.getEngineSize();
-    if (engineSize > 50 && !hasValidLicense(username, auth, engineSize)) {
-        return false;
-    }
+    // Note: License requirement is checked during booking request, not during search
+    // This allows users to see all available motorbikes but prevents booking without valid license
     
     return true;
 }
@@ -763,7 +809,10 @@ vector<string> BookingManager::getMotorbikeReviews(const string& motorbikeId) {
     
     for (const Review& review : reviews) {
         if (review.getMotorbikeId() == motorbikeId) {
-            motorbikeComments.push_back(review.getComment());
+            string reviewText = "Rating: " + to_string(review.getRating()) + "/5.0 - " + 
+                               review.getComment() + " (by " + review.getRenterUsername() + 
+                               " on " + review.getReviewDate() + ")";
+            motorbikeComments.push_back(reviewText);
         }
     }
     
@@ -771,6 +820,21 @@ vector<string> BookingManager::getMotorbikeReviews(const string& motorbikeId) {
 }
 
 double BookingManager::getAverageRating(const string& motorbikeId) {
+    double totalRating = 0.0;
+    int count = 0;
+    
+    for (const Review& review : reviews) {
+        if (review.getMotorbikeId() == motorbikeId) {
+            totalRating += review.getRating();
+            count++;
+        }
+    }
+    
+    if (count > 0) {
+        return totalRating / count;
+    }
+    
+    // Fallback to motorbike's stored rating if no reviews
     Motorbike* motorbike = getMotorbikeById(motorbikeId);
     return motorbike ? motorbike->getRating() : 0.0;
 }
@@ -832,18 +896,23 @@ bool BookingManager::completeRental(const string& bookingId, const string& rente
 bool BookingManager::rateMotorbike(const string& bookingId, const string& renterUsername, double rating, const string& comment) {
     for (Booking& booking : bookings) {
         if (booking.getBookingId() == bookingId && booking.getRenterUsername() == renterUsername && booking.isCompleted()) {
-            // Update motorbike rating
+            // Add review using the new function
+            if (!addReview(booking.getMotorbikeId(), renterUsername, rating, comment)) {
+                return false;
+            }
+            
+            // Update motorbike rating based on all reviews
+            double newAverageRating = getAverageRating(booking.getMotorbikeId());
             Motorbike* motorbike = getMotorbikeById(booking.getMotorbikeId());
             if (motorbike) {
-                double currentRating = motorbike->getRating();
-                double newRating = (currentRating + rating) / 2.0; // Simple average
-                motorbike->setRating(newRating);
+                motorbike->setRating(newAverageRating);
                 saveMotorbikes();
             }
             
             cout << "Motorbike rated successfully!" << endl;
             cout << "Rating: " << rating << "/5.0" << endl;
             cout << "Comment: " << comment << endl;
+            cout << "New average rating: " << newAverageRating << "/5.0" << endl;
             
             return true;
         }
@@ -863,6 +932,27 @@ bool BookingManager::rateRenter(const string& bookingId, const string& ownerUser
         }
     }
     return false;
+}
+
+string BookingManager::generateReviewId() {
+    return "R" + to_string(reviews.size() + 1);
+}
+
+bool BookingManager::addReview(const string& motorbikeId, const string& renterUsername, double rating, const string& comment) {
+    if (rating < 1.0 || rating > 5.0) {
+        cout << "Rating must be between 1.0 and 5.0." << endl;
+        return false;
+    }
+    
+    string reviewId = generateReviewId();
+    string reviewDate = "25/09/2025"; // Current date - in real app would use actual date
+    
+    Review newReview(reviewId, motorbikeId, renterUsername, rating, comment, reviewDate);
+    reviews.push_back(newReview);
+    saveReviews();
+    
+    cout << "Review added successfully!" << endl;
+    return true;
 }
 
 void BookingManager::createSampleData() {
