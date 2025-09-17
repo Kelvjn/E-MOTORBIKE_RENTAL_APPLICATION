@@ -3,11 +3,4 @@ BK001|soohyukjang|ducthinhlu|MB001|15/09/2025|17/09/2025|Approved|50|VinFast|Kla
 BK002|tuanhaipham|soohyukjang|MB002|18/09/2025|20/09/2025|Pending|105|Honda|Air Blade|Blue|125cc|51B2-23456
 BK003|thequyenvu|tuanhaipham|MB003|22/09/2025|24/09/2025|Completed|135|Yamaha|Exciter|Black|150cc|59C3-34567
 BK004|ducthinhlu|thequyenvu|MB004|20/09/2025|22/09/2025|Approved|100|VinFast|Theon|White|150cc|51D4-45678
-BK005|soohyukjang|ducthinhlu|MB005|25/09/2025|26/09/2025|Rejected|30|Honda|Vision|Silver|110cc|30E5-56789
-BK006|tuanhaipham|soohyukjang|MB006|28/09/2025|30/09/2025|Pending|84|Suzuki|Address|Yellow|110cc|29F6-67890
-BK007|thequyenvu|tuanhaipham|MB007|01/10/2025|03/10/2025|Approved|66|VinFast|Ludo|Green|50cc|30G7-78901
-BK008|ducthinhlu|thequyenvu|MB008|05/10/2025|07/10/2025|Completed|165|Honda|SH|Black|150cc|29H8-89012
-BK009|soohyukjang|ducthinhlu|MB009|10/10/2025|12/10/2025|Pending|180|Yamaha|NMAX|Red|155cc|59I9-90123
-BK010|tuanhaipham|soohyukjang|MB010|15/10/2025|17/10/2025|Approved|114|Piaggio|Liberty|Blue|125cc|51J0-01234
-BK011|thequyenvu|tuanhaipham|MB011|20/10/2025|22/10/2025|Rejected|156|Honda|PCX|Gray|150cc|30K1-12345
-BK012|ducthinhlu|thequyenvu|MB012|25/10/2025|26/10/2025|Completed|42|Suzuki|Burgman|White|125cc|29L2-23456
+BK005|soohyukjang|tuanhaipham|MB003|25/09/2025|26/09/2025|Rejected|45|Yamaha|Exciter|Black|150cc|59C3-34567

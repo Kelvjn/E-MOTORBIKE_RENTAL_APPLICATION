@@ -1,0 +1,122 @@
+@startuml E-Motorbike Rental Class Diagram
+
+class User {
+    -username: string
+    -password: string
+    -role: string
+    -fullName: string
+    -email: string
+    -phoneNumber: string
+    -idType: string
+    -idNumber: string
+    -licenseNumber: string
+    -licenseExpiry: string
+    -creditPoints: double
+    -rating: double
+    +getUsername(): string
+    +getPassword(): string
+    +getRole(): string
+    +getCreditPoints(): double
+    +getRating(): double
+    +hasValidLicense(): bool
+    +setCreditPoints(): void
+}
+
+class Auth {
+    -users: vector<User>
+    -currentUser: User*
+    +login(): bool
+    +adminLogin(): bool
+    +registerUser(): bool
+    +getCurrentUser(): User*
+    +validatePassword(): bool
+    +updateProfile(): bool
+    +topUpCreditPoints(): bool
+    +deductCreditPoints(): bool
+}
+
+class Motorbike {
+    -motorbikeId: string
+    -ownerUsername: string
+    -brand: string
+    -model: string
+    -color: string
+    -size: string
+    -plateNo: string
+    -pricePerDay: double
+    -location: string
+    -isAvailable: bool
+    -rating: double
+    -description: string
+    -availableStartDate: string
+    -availableEndDate: string
+    -minRenterRating: double
+    -isListed: bool
+    +getBrand(): string
+    +getModel(): string
+    +getPricePerDay(): double
+    +getEngineSize(): int
+    +calculateRentalCost(): double
+    +isAvailableForDate(): bool
+}
+
+class Booking {
+    -bookingId: string
+    -renterUsername: string
+    -ownerUsername: string
+    -motorbikeId: string
+    -startDate: string
+    -endDate: string
+    -status: string
+    -totalCost: double
+    +getBookingId(): string
+    +getRenterUsername(): string
+    +getStatus(): string
+    +isPending(): bool
+    +isApproved(): bool
+    +setStatus(): void
+}
+
+class Review {
+    -reviewId: string
+    -motorbikeId: string
+    -renterUsername: string
+    -rating: double
+    -comment: string
+    -reviewDate: string
+    +getReviewId(): string
+    +getMotorbikeId(): string
+    +getRating(): double
+    +getComment(): string
+}
+
+class BookingManager {
+    -bookings: vector<Booking>
+    -motorbikes: vector<Motorbike>
+    -reviews: vector<Review>
+    +createBooking(): bool
+    +approveBooking(): bool
+    +searchMotorbikes(): vector<Motorbike>
+    +listMotorbike(): bool
+    +loadData(): void
+    +saveData(): void
+}
+
+class UI {
+    -auth: Auth*
+    -bookingManager: BookingManager*
+    +showWelcomeScreen(): void
+    +showMainMenu(): int
+    +showMemberMenu(): void
+    +showAdminMenu(): void
+}
+
+' Relationships
+Auth *-- User : contains
+BookingManager *-- Booking : contains
+BookingManager *-- Motorbike : contains
+BookingManager *-- Review : contains
+UI --> Auth : uses
+UI --> BookingManager : uses
+
+@enduml

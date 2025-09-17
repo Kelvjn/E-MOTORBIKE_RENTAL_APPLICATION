@@ -273,7 +273,7 @@ bool Auth::validatePassword(const string& password) {
     // Check for common weak passwords
     vector<string> weakPasswords = {
         "12345", "123456", "12345678", "password", "password123", 
-        "admin", "admin123", "qwerty", "abc123", "letmein"
+        "admin", "admin123", "qwerty", "abc123"
     };
     
     string lowerPassword = password;
