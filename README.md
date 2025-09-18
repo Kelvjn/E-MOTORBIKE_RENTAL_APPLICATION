@@ -15,6 +15,9 @@ Instructor: Dr Ling Huo Chong, Dr Ushik Shrestha, Dr Tri Huynh
 ## About This Project
 Electric motorbike rental app where members can list their motorbikes and rent from each other using credit points.
 
+## Video Presentation
+[Video Presentation](https://youtu.be/DA90ajlSlGE)
+
 ## How to Build and Run
 
 ### Compile
