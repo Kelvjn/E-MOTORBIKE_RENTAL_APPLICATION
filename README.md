@@ -10,7 +10,7 @@ Semester 2 2025
 - S3975144, Pham Tuan Hai
 - S4027077, Vu The Quyen
 
-Instructor: Dr Ling Huo Chong, Dr Ushik Shrestha, Dr Tri Huynh
+Instructor: Dr Tri Huynh
 
 ## About This Project
 Electric motorbike rental app where members can list their motorbikes and rent from each other using credit points.
