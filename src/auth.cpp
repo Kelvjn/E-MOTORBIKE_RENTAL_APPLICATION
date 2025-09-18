@@ -25,21 +25,6 @@ User::User(const string& username, const string& password, const string& role,
 Auth::Auth() : currentUser(nullptr) {
     accountFilename = "data/account.txt";
     loadUsers();
-    
-    // Create sample users if file is empty
-    if (users.empty()) {
-        users.push_back(User("admin", "Admin123!", "admin", "System Administrator", "admin@motorbike.com", "0901234567", 
-                             "Passport", "P999999999", "DL999999", "31/12/2030", 100.0, 5.0));
-        users.push_back(User("ducthinhlu", "Thinh123!", "member", "Lu Duc Thinh", "thinh.lu@student.rmit.edu.vn", "0912345678",
-                             "Citizen ID", "123456789", "DL001234", "31/12/2025", 50.0, 4.2));
-        users.push_back(User("soohyukjang", "Soohyuk123!", "member", "Jang Soohyuk", "soohyuk.jang@student.rmit.edu.vn", "0923456789",
-                             "Passport", "P987654321", "DL005678", "31/12/2025", 40.0, 3.8));
-        users.push_back(User("tuanhaipham", "Tuanhai123!", "member", "Pham Tuan Hai", "tuanhai.pham@student.rmit.edu.vn", "0934567890",
-                             "Citizen ID", "987654321", "DL009012", "31/12/2025", 35.0, 4.0));
-        users.push_back(User("thequyenvu", "Thequyen123!", "member", "Vu The Quyen", "thequyen.vu@student.rmit.edu.vn", "0945678901",
-                             "Passport", "P123456789", "DL003456", "31/12/2025", 60.0, 4.5));
-        saveUsers(); // Save sample data
-    }
 }
 
 Auth::~Auth() {
