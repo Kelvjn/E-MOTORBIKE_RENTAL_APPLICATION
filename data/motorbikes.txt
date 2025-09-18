@@ -1,6 +1,6 @@
 # Motorbike Data Format: motorbikeId|ownerUsername|brand|model|color|size|plateNo|pricePerDay|location|isAvailable|rating|description|availableStartDate|availableEndDate|minRenterRating|isListed
-MB001|ducthinhlu|VinFast|Klara S|Red|50cc|59A1-12345|25|HCMC|0|4.25|VinFast Klara S - Red 50cc Electric Scooter|01/09/2025|31/12/2025|3|1
-MB002|soohyukjang|Honda|Air Blade|Blue|125cc|51B2-23456|35|HCMC|1|4.3|Honda Air Blade - Blue 125cc|01/09/2025|30/11/2025|3.5|1
+MB001|ducthinhlu|VinFast|Klara S|Red|50cc|59A1-12345|25|HCMC|0|4|VinFast Klara S - Red 50cc Electric Scooter|01/09/2025|31/12/2025|3|1
+MB002|soohyukjang|Honda|Air Blade|Blue|125cc|51B2-23456|35|HCMC|0|4.3|Honda Air Blade - Blue 125cc|01/09/2025|30/11/2025|3.5|1
 MB003|tuanhaipham|Yamaha|Exciter|Black|150cc|59C3-34567|45|Hanoi|1|4.7|Yamaha Exciter - Black 150cc Sport Bike|15/09/2025|31/12/2025|4|1
 MB004|thequyenvu|VinFast|Theon|White|150cc|51D4-45678|50|Hanoi|1|4.3|VinFast Theon - White 150cc Electric|01/09/2025|31/12/2025|4.2|1
 MB5|soohyukjang|Honda|H1V4|Black|110cc|T1234|30|HCMC|1|0|Honda H1V4 - Black 110cc|01/09/2025|01/10/2025|3|0

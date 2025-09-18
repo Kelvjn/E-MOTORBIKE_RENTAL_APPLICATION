@@ -274,9 +274,6 @@ public:
     string generateReviewId();
     bool addReview(const string& motorbikeId, const string& renterUsername, double rating, const string& comment);
     
-    // Sample data
-    void createSampleData();
-    void createSampleMotorbikes();
 };
 
 #endif

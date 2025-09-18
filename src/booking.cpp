@@ -155,11 +155,6 @@ BookingManager::BookingManager() {
     loadBookings();
     loadMotorbikes();
     loadReviews();
-    
-    // Create sample data if files are empty
-    if (bookings.empty() && motorbikes.empty()) {
-        createSampleData();
-    }
 }
 
 BookingManager::~BookingManager() {
@@ -955,26 +950,6 @@ bool BookingManager::addReview(const string& motorbikeId, const string& renterUs
     return true;
 }
 
-void BookingManager::createSampleData() {
-    createSampleMotorbikes();
-}
-
-void BookingManager::createSampleMotorbikes() {
-    // Create sample motorbikes
-    vector<Motorbike> sampleMotorbikes = {
-        Motorbike("MB1", "iAmMember1", "VinFast", "Klara S", "Red", "50cc", "59X3-216.86", 25, "HCMC", true, 4.5, "VinFast Klara S - Red 50cc", "01/08/2025", "31/12/2025", 3.5, true),
-        Motorbike("MB2", "iAmMember2", "Honda", "Vision", "Blue", "110cc", "51A-12345", 30, "HCMC", true, 4.2, "Honda Vision - Blue 110cc", "01/08/2025", "30/11/2025", 3, true),
-        Motorbike("MB3", "iAmMember3", "Yamaha", "Exciter", "Black", "150cc", "51B-67890", 45, "HCMC", true, 4.8, "Yamaha Exciter - Black 150cc", "01/08/2025", "31/12/2025", 4, true),
-        Motorbike("MB4", "iAmMember4", "Suzuki", "Raider", "White", "125cc", "51C-11111", 35, "HCMC", true, 4, "Suzuki Raider - White 125cc", "01/08/2025", "30/09/2025", 3.5, true),
-        Motorbike("MB5", "iAmMember5", "Piaggio", "Liberty", "Green", "125cc", "51D-22222", 40, "HCMC", true, 4.3, "Piaggio Liberty - Green 125cc", "01/08/2025", "31/10/2025", 3.8, true)
-    };
-    
-    for (const Motorbike& motorbike : sampleMotorbikes) {
-        motorbikes.push_back(motorbike);
-    }
-    
-    saveMotorbikes();
-}
 
 void BookingManager::loadReviews() {
     ifstream file(reviewFilename);
