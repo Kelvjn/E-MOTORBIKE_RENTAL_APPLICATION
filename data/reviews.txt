@@ -3,5 +3,5 @@ R001|MB001|soohyukjang|4.5|VinFast Klara S runs very smoothly and quietly. Perfe
 R002|MB002|tuanhaipham|4.3|Honda Air Blade has great acceleration. Very reliable bike.|20/09/2025
 R003|MB003|thequyenvu|4.7|Yamaha Exciter is amazing for long rides. Powerful engine!|24/09/2025
 R004|MB004|ducthinhlu|4.6|VinFast Theon electric bike is eco-friendly and stylish.|22/09/2025
-R5|MB004|ducthinhlu|4|Good, thank you. Nice vehicle|25/09/2025
-R6|MB001|soohyukjang|3.5|the bike was cool|25/09/2025
+R005|MB001|thequyenvu|4.0|Good bike for short trips around the city.|02/09/2025
+R006|MB002|ducthinhlu|4.0|Honda Air Blade is comfortable and fuel efficient.|23/09/2025
