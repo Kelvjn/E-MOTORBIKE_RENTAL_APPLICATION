@@ -223,6 +223,7 @@ public:
     // Motorbike management
     bool addMotorbike(const Motorbike& motorbike);
     vector<Motorbike> getAvailableMotorbikes();
+    vector<Motorbike> getAllMotorbikes(); // Get all motorbikes for admin view
     vector<Motorbike> getGuestMotorbikes(); // Get motorbikes for guest view (limited info)
     vector<Motorbike> getUserMotorbikes(const string& username);
     Motorbike* getMotorbikeById(const string& motorbikeId);

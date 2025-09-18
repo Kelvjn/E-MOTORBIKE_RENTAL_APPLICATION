@@ -458,6 +458,10 @@ vector<Motorbike> BookingManager::getAvailableMotorbikes() {
     return available;
 }
 
+vector<Motorbike> BookingManager::getAllMotorbikes() {
+    return motorbikes; // Return all motorbikes for admin view
+}
+
 vector<Motorbike> BookingManager::getGuestMotorbikes() {
     vector<Motorbike> guestMotorbikes;
     for (const Motorbike& motorbike : motorbikes) {
@@ -949,7 +953,6 @@ bool BookingManager::addReview(const string& motorbikeId, const string& renterUs
     cout << "Review added successfully!" << endl;
     return true;
 }
-
 
 void BookingManager::loadReviews() {
     ifstream file(reviewFilename);

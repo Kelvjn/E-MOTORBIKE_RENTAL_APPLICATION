@@ -109,7 +109,7 @@ void UIAdmin::viewAllMotorbikeListings() {
     uiCore->clearScreen();
     cout << "=== ALL MOTORBIKE LISTINGS ===\n\n";
     
-    vector<Motorbike> allMotorbikes = bookingManager->getAvailableMotorbikes();
+    vector<Motorbike> allMotorbikes = bookingManager->getAllMotorbikes();
     
     if (allMotorbikes.empty()) {
         cout << "No motorbikes found in the system.\n";
@@ -182,7 +182,7 @@ void UIAdmin::showSystemStatistics() {
     
     // Get all data
     vector<User> allUsers = auth->getAllUsers();
-    vector<Motorbike> allMotorbikes = bookingManager->getAvailableMotorbikes();
+    vector<Motorbike> allMotorbikes = bookingManager->getAllMotorbikes();
     vector<Booking> allBookings = bookingManager->getAllBookings();
     
     // Calculate statistics
