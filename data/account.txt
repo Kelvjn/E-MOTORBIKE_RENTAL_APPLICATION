@@ -5,4 +5,4 @@ soohyukjang|Soohyuk123!|member|Jang Soohyuk|soohyuk.jang@student.rmit.edu.vn|092
 tuanhaipham|Tuanhai123!|member|Pham Tuan Hai|tuanhai.pham@student.rmit.edu.vn|0934567890|Citizen ID|987654321|DL009012|31/12/2025|35|4
 thequyenvu|Thequyen123!|member|Vu The Quyen|thequyen.vu@student.rmit.edu.vn|0945678901|Passport|P123456789|DL003456|31/12/2025|35|4.5
 jang|Jang123!|member|Soohyuk Jang|soohyuk@gmail.com|0901111111|Passport|M12345678||N/A|50|3.5
-Kelvin|Kelvin123!|member|Duc Thinh|luducthinh2004@gmail.com|0379158588|Citizen ID|0192924949||N/A|20|3
+Kelvin|Kelvin123!|member|Duc Thinh|luducthinh2004@gmail.com|0379158588|Citizen ID|0192924949||N/A|100|3
