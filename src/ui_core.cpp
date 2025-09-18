@@ -48,7 +48,7 @@ void UICore::showWelcomeScreen() {
     cout << "EEET2482/EEET2653/COSC2082/COSC2721 GROUP PROJECT\n";
     cout << "Semester 2 2025\n";
     cout << "E-MOTORBIKE RENTAL APPLICATION\n";
-    cout << "Instructor: Dr Ling Huo Chong, Dr Ushik Shrestha, Dr Tri Huynh\n";
+    cout << "Instructor: Dr Tri Huynh\n";
     cout << "Group: 5\n";
     cout << "S3992133, Lu Duc Thinh\n";
     cout << "S3928379, Jang Soohyuk\n";
